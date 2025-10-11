@@ -1,0 +1,1738 @@
+{
+  "name": "LEAD SCRAPER V1 (WORKING WITH TEST DATA)",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Get all items from Extract from File node\nconst items = $input.all();\n\n// Limit to first 10 items for testing\nconst limitedItems = items.slice(0, 10);\n\n// Map PropWire columns to your scoring system format\nconst mappedProperties = limitedItems.map(property => ({\n  // Property Info\n  address: property['T Address'] || '',\n  city: property['T City'] || '',\n  state: property['T State'] || '',\n  zip: property['T Zip'] || '',\n  property_value: parseInt(property['T Estimated Value']) || 0,\n  lot_size_acres: parseFloat(property['T Lot (Acres)']) || 0,\n  square_feet: parseInt(property['T Living Square Feet']) || 0,\n  bedrooms: parseInt(property['T Bedrooms']) || 0,\n  bathrooms: parseInt(property['T Bathrooms']) || 0,\n  year_built: parseInt(property['T Year Built']) || 1990,\n  property_type: property['T Property Type'] || 'Single Family',\n  \n  // Owner Info\n  owner_first_name: property['T Owner 1 First Name'] || '',\n  owner_last_name: property['T Owner 1 Last Name'] || '',\n  absentee_owner: property['T Owner Occupied'] === '0' || property['T Vacant?'] === '1',\n  equity_percentage: parseFloat(property['T Estimated Equity Percent']) || 0,\n  \n  // Financial Data\n  last_sale_date: property['T Last Sale Date'] || '',\n  last_sale_price: parseInt(property['T Last Sale Amount']) || 0,\n  \n  // Additional\n  apn: property['T APN'] || ''\n}));\n\nreturn mappedProperties;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3568,
+        480
+      ],
+      "id": "c0ef19ef-1929-45c3-8d15-5d94fe978d76",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "resource": "worksheet",
+        "operation": "readRows",
+        "workbook": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "worksheet": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.microsoftExcel",
+      "typeVersion": 2.1,
+      "position": [
+        3392,
+        256
+      ],
+      "id": "faefd2ce-9942-4694-9609-6c394085d2ae",
+      "name": "Get rows from sheet"
+    },
+    {
+      "parameters": {
+        "options": {
+          "delimiter": ",",
+          "headerRow": true
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        3296,
+        1088
+      ],
+      "id": "c9753a46-c233-4f4c-99df-8ae6e1d1787f",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "url": "https://drive.google.com/uc?export=download&id=1GYePy3pi9wAuTFGOf6i08cPjUxg7m80W",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2912,
+        928
+      ],
+      "id": "cbd3a7c2-4a0d-4a2f-9d7e-8d65aa2809bc",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3776,
+        544
+      ],
+      "id": "96464201-a414-45bb-b4a5-7a90cfae8247",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all items from Extract from File node\nconst items = $input.all();\n\n// Limit to first 10 items for testing\nconst limitedItems = items.slice(0, 10);\n\n// Map PropWire columns to your scoring system format\nconst mappedProperties = limitedItems.map(item => {\n  // Access the actual data from the n8n item structure\n  const property = item.json;\n  \n  // Helper function to safely parse numbers\n  const safeParse = (value, defaultVal = 0) => {\n    if (value === undefined || value === null || value === '') return defaultVal;\n    const parsed = parseFloat(value.toString().trim());\n    return isNaN(parsed) ? defaultVal : parsed;\n  };\n\n  return {\n    // Property Info\n    address: property['T Address'] || '',\n    city: property['T City'] || '',\n    state: property['T State'] || '',\n    zip: property['T Zip'] || '',\n    property_value: safeParse(property['T Estimated Value']),\n    lot_size_acres: safeParse(property['T Lot (Acres)']),\n    square_feet: safeParse(property['T Living Square Feet']),\n    bedrooms: safeParse(property['T Bedrooms']),\n    bathrooms: safeParse(property['T Bathrooms']),\n    year_built: safeParse(property['T Year Built'], 1990),\n    property_type: property['T Property Type'] || 'Single Family',\n    \n    // Owner Info\n    owner_first_name: property['T Owner 1 First Name'] || '',\n    owner_last_name: property['T Owner 1 Last Name'] || '',\n    absentee_owner: property['T Owner Occupied'] === '0' || property['T Vacant?'] === '1',\n    equity_percentage: safeParse(property['T Estimated Equity Percent']),\n    \n    // Financial Data\n    last_sale_date: property['T Last Sale Date'] || '',\n    last_sale_price: safeParse(property['T Last Sale Amount']),\n    \n    // Additional\n    apn: property['T APN'] || ''\n  };\n});\n\nreturn mappedProperties;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2976,
+        352
+      ],
+      "id": "782f0d55-a855-4a1e-8589-f7efaa7fd35d",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4080,
+        672
+      ],
+      "id": "ea4e4193-08d2-4439-8383-4e9f371439f9",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Load single test property\nreturn [{\n  json: {\n    \"address\": \"123 Oak Street, Chicago, IL 60614\",\n    \"city\": \"Chicago\",\n    \"state\": \"IL\",\n    \"zip\": \"60614\",\n    \"contact_name\": \"John Smith\",\n    \"phone\": \"312-555-0123\",\n    \"email\": \"john.smith@email.com\",\n    \"property_value\": 750000,\n    \"year_built\": 2019,\n    \"lot_size_acres\": 0.3,\n    \"building_sqft\": 3500,\n    \"bedrooms\": 4,\n    \"property_type\": \"Single Family\",\n    \"days_since_purchase\": 45,\n    \"days_since_permit\": 15,\n    \"days_since_violation\": null,\n    \"has_pool\": true,\n    \"has_hoa\": true,\n    \"family_size\": 4,\n    \"business_owner\": false,\n    \"estimated_income\": 150000,\n    \"school_rating\": 9,\n    \"neighborhood_type\": \"suburban\",\n    \"property_tax_trend\": \"increasing\",\n    \"neighborhood_value_trend\": \"increasing\"\n  }\n}];"
+      },
+      "id": "6a683680-4306-41f8-ae89-56e854832f85",
+      "name": "Single Test Property1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        3712,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// ENHANCED MODULE 1: URGENCY/TIMING SCORE CALCULATION\n// Ultra-detailed scoring focused on \"Will they spend money soon?\"\n\n// Get all items from input\nconst items = $input.all();\n\n// Process each item\nconst processedItems = items.map(item => {\n  const $json = item.json;\n  \n  try {\n    // Initialize variables\n    let urgencyScore = 0;\n    let urgencyReasons = [];\n    \n    // Get current date for calculations\n    const currentDate = new Date();\n    const currentMonth = currentDate.getMonth() + 1;\n    const currentYear = currentDate.getFullYear();\n    \n    // 1. NEW HOMEOWNER STATUS (0-100 points) - Peak buying window\n    let baseUrgencyScore = 0;\n    if ($json.days_since_purchase !== undefined && $json.days_since_purchase !== null) {\n      const daysSincePurchase = parseInt($json.days_since_purchase);\n      \n      if (daysSincePurchase <= 30) {\n        baseUrgencyScore = 100; // Peak buying window\n        urgencyReasons.push(`New homeowner (≤30 days): +100 points - PEAK BUYING WINDOW`);\n      } else if (daysSincePurchase <= 60) {\n        baseUrgencyScore = 95;\n        urgencyReasons.push(`New homeowner (31-60 days): +95 points - HIGH BUYING WINDOW`);\n      } else if (daysSincePurchase <= 90) {\n        baseUrgencyScore = 85;\n        urgencyReasons.push(`New homeowner (61-90 days): +85 points - GOOD BUYING WINDOW`);\n      } else if (daysSincePurchase <= 120) {\n        baseUrgencyScore = 70;\n        urgencyReasons.push(`New homeowner (91-120 days): +70 points - MODERATE WINDOW`);\n      } else if (daysSincePurchase <= 180) {\n        baseUrgencyScore = 50;\n        urgencyReasons.push(`New homeowner (121-180 days): +50 points - DECLINING WINDOW`);\n      } else if (daysSincePurchase <= 365) {\n        baseUrgencyScore = 30;\n        urgencyReasons.push(`New homeowner (181-365 days): +30 points - LOW WINDOW`);\n      } else {\n        baseUrgencyScore = 10;\n        urgencyReasons.push(`Established homeowner (>365 days): +10 points - MINIMAL WINDOW`);\n      }\n    } else {\n      baseUrgencyScore = 10; // Default for unknown status\n      urgencyReasons.push(`Unknown homeowner status: +10 points (default)`);\n    }\n    \n    // 2. SEASONAL TIMING BONUS (0-20 points)\n    let seasonalBonus = 0;\n    if ([3, 4, 5].includes(currentMonth)) {\n      seasonalBonus = 20; // Spring - high activity\n      urgencyReasons.push(`Spring season (Mar-May): +20 points - HIGH ACTIVITY`);\n    } else if ([9, 10].includes(currentMonth)) {\n      seasonalBonus = 15; // Fall - high activity\n      urgencyReasons.push(`Fall season (Sep-Oct): +15 points - HIGH ACTIVITY`);\n    } else if ([6, 7, 8].includes(currentMonth)) {\n      seasonalBonus = 10; // Summer - moderate\n      urgencyReasons.push(`Summer season (Jun-Aug): +10 points - MODERATE ACTIVITY`);\n    } else {\n      seasonalBonus = 5; // Winter - low\n      urgencyReasons.push(`Winter season (Nov-Feb): +5 points - LOW ACTIVITY`);\n    }\n    \n    // 3. PURCHASE PRICE VS MARKET (Overpaying Indicator) (0-20 points)\n    let overpayBonus = 0;\n    if ($json.property_value !== undefined && $json.property_value !== null && $json.market_value !== undefined && $json.market_value !== null) {\n      const purchasePrice = parseInt($json.property_value);\n      const marketValue = parseInt($json.market_value);\n      const priceDifferential = (purchasePrice / marketValue) - 1;\n      \n      if (priceDifferential > 0.10) {\n        overpayBonus = 20; // Paid 10%+ over market - has budget and motivation\n        urgencyReasons.push(`Overpaid 10%+ (${(priceDifferential * 100).toFixed(1)}%): +20 points - HIGH BUDGET & MOTIVATION`);\n      } else if (priceDifferential > 0.05) {\n        overpayBonus = 10; // Paid 5-10% over market\n        urgencyReasons.push(`Overpaid 5-10% (${(priceDifferential * 100).toFixed(1)}%): +10 points - GOOD BUDGET`);\n      } else if (priceDifferential > 0) {\n        overpayBonus = 5; // Paid slightly over market\n        urgencyReasons.push(`Overpaid slightly (${(priceDifferential * 100).toFixed(1)}%): +5 points - SOME BUDGET`);\n      } else {\n        overpayBonus = 0; // Paid at or below market\n        urgencyReasons.push(`Paid at/below market: +0 points - STANDARD PURCHASE`);\n      }\n    } else {\n      // Estimate overpay based on property characteristics\n      if ($json.property_value >= 600000 && $json.days_since_purchase <= 90) {\n        overpayBonus = 10; // High-value recent purchase likely involved competition\n        urgencyReasons.push(`High-value recent purchase: +10 points - LIKELY COMPETITIVE BIDDING`);\n      } else {\n        overpayBonus = 0;\n        urgencyReasons.push(`No overpay data available: +0 points (default)`);\n      }\n    }\n    \n    // 4. RECENT PERMITS (Urgency Signal) (0-25 points)\n    let permitScore = 0;\n    if ($json.days_since_permit !== undefined && $json.days_since_permit !== null) {\n      const daysSincePermit = parseInt($json.days_since_permit);\n      \n      if (daysSincePermit <= 30) {\n        permitScore = 25; // Very recent permit - active improvement\n        urgencyReasons.push(`Recent permit (≤30 days): +25 points - ACTIVE IMPROVEMENT`);\n      } else if (daysSincePermit <= 90) {\n        permitScore = 20;\n        urgencyReasons.push(`Recent permit (31-90 days): +20 points - RECENT IMPROVEMENT`);\n      } else if (daysSincePermit <= 180) {\n        permitScore = 15;\n        urgencyReasons.push(`Older permit (91-180 days): +15 points - SOME IMPROVEMENT`);\n      } else if (daysSincePermit <= 365) {\n        permitScore = 10;\n        urgencyReasons.push(`Old permit (181-365 days): +10 points - PAST IMPROVEMENT`);\n      } else {\n        permitScore = 0;\n        urgencyReasons.push(`Very old permit (>365 days): +0 points - NO RECENT ACTIVITY`);\n      }\n    } else {\n      urgencyReasons.push(`No permit data available: +0 points`);\n    }\n    \n    // 5. CODE VIOLATIONS (Urgency Signal) (0-25 points)\n    let violationScore = 0;\n    if ($json.days_since_violation !== undefined && $json.days_since_violation !== null) {\n      const daysSinceViolation = parseInt($json.days_since_violation);\n      \n      if (daysSinceViolation <= 30) {\n        violationScore = 25; // Recent violation - immediate need\n        urgencyReasons.push(`Recent violation (≤30 days): +25 points - IMMEDIATE NEED`);\n      } else if (daysSinceViolation <= 90) {\n        violationScore = 20;\n        urgencyReasons.push(`Recent violation (31-90 days): +20 points - URGENT NEED`);\n      } else if (daysSinceViolation <= 180) {\n        violationScore = 15;\n        urgencyReasons.push(`Older violation (91-180 days): +15 points - NEEDS ATTENTION`);\n      } else if (daysSinceViolation <= 365) {\n        violationScore = 10;\n        urgencyReasons.push(`Old violation (181-365 days): +10 points - SOME NEED`);\n      } else {\n        violationScore = 0;\n        urgencyReasons.push(`Very old violation (>365 days): +0 points - RESOLVED`);\n      }\n    } else {\n      urgencyReasons.push(`No violation data available: +0 points`);\n    }\n    \n    // 6. CALCULATE FINAL URGENCY SCORE\n    urgencyScore = baseUrgencyScore + seasonalBonus + overpayBonus + permitScore + violationScore;\n    \n    // Cap at maximum score\n    urgencyScore = Math.min(urgencyScore, 100);\n    \n    // Ensure minimum score of 0\n    urgencyScore = Math.max(urgencyScore, 0);\n    \n    // Add summary to reasons\n    urgencyReasons.push(`FINAL URGENCY SCORE: ${urgencyScore}/100`);\n    \n    // Return the result\n    return {\n      json: {\n        ...$json, // Preserve all original data\n        urgency_score: urgencyScore,\n        urgency_reasons: urgencyReasons,\n        urgency_breakdown: {\n          base_urgency_score: baseUrgencyScore,\n          seasonal_bonus: seasonalBonus,\n          overpay_bonus: overpayBonus,\n          permit_score: permitScore,\n          violation_score: violationScore,\n          final_urgency_score: urgencyScore\n        }\n      }\n    };\n    \n  } catch (error) {\n    // Error handling - return safe defaults\n    console.error('Error in Enhanced Urgency Module:', error);\n    \n    return {\n      json: {\n        ...$json, // Preserve original data\n        urgency_score: 20, // Safe default score\n        urgency_reasons: [\n          \"Error in urgency calculation: +20 points (default)\",\n          \"Check data quality and try again\"\n        ],\n        urgency_breakdown: {\n          base_urgency_score: 10,\n          seasonal_bonus: 10,\n          overpay_bonus: 0,\n          permit_score: 0,\n          violation_score: 0,\n          final_urgency_score: 20\n        },\n        error: error.message\n      }\n    };\n  }\n});\n\n// Return all processed items\nreturn processedItems;"
+      },
+      "id": "38bd40ad-01eb-4f75-8f14-470ec3bd2581",
+      "name": "Calculate Urgency Score1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        3808,
+        992
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// N8N PROPERTY CHARACTERISTICS MODULE\n// Optimized for \"Run Once for Each Item\" mode\n// Uses consistent rounding and validation for reproducible results\n\ntry {\n  // Initialize variables\n  let propertyScore = 0;\n  let propertyReasons = [];\n  \n  // Initialize calculation log\n  const calculationLog = [];\n  \n  // Utility functions for consistent calculations\n  const utils = {\n    roundScore: (value) => Math.max(0, Math.min(100, Math.round(value))),\n    validateNumericInput: (value, defaultValue = 0, min = 0, max = Infinity) => {\n      const numValue = parseInt(value);\n      return (isNaN(numValue) || numValue < min || numValue > max) ? defaultValue : numValue;\n    },\n    logCalculationStep: (step, input, output, reason = '') => {\n      const logEntry = { step, input, output, reason, timestamp: new Date().toISOString() };\n      calculationLog.push(logEntry);\n      return logEntry;\n    }\n  };\n  \n  // 1. PROPERTY AGE (Renovation Need Indicator) (0-100 points)\n  let ageScore = 0;\n  const currentYear = 2024; // Fixed reference year for consistency\n  const yearBuilt = utils.validateNumericInput($json['Year Built'], 2000, 1800, currentYear);\n  const propertyAge = currentYear - yearBuilt;\n  \n  if (propertyAge >= 25) {\n    ageScore = 100; // Very old property - high renovation needs\n    propertyReasons.push(`Very old property (${propertyAge} years): +100 points - HIGH RENOVATION NEEDS`);\n  } else if (propertyAge >= 20) {\n    ageScore = 90; // Old property - high renovation needs\n    propertyReasons.push(`Old property (${propertyAge} years): +90 points - HIGH RENOVATION NEEDS`);\n  } else if (propertyAge >= 15) {\n    ageScore = 75; // Moderate age - some renovation needs\n    propertyReasons.push(`Moderate age property (${propertyAge} years): +75 points - SOME RENOVATION NEEDS`);\n  } else if (propertyAge >= 10) {\n    ageScore = 50; // Either well-maintained or neglected\n    propertyReasons.push(`Property age ${propertyAge} years: +50 points - MODERATE MAINTENANCE NEEDS`);\n  } else if (propertyAge >= 5) {\n    ageScore = 25; // Relatively new - minimal needs\n    propertyReasons.push(`New property (${propertyAge} years): +25 points - MINIMAL MAINTENANCE NEEDS`);\n  } else {\n    ageScore = 10; // Very new - minimal needs\n    propertyReasons.push(`Very new property (${propertyAge} years): +10 points - MINIMAL MAINTENANCE NEEDS`);\n  }\n  \n  utils.logCalculationStep('age_scoring', `${yearBuilt} (age: ${propertyAge})`, ageScore, 'Property age-based renovation need scoring');\n  \n  // 2. PROPERTY VALUE (Wealth Indicator) (0-100 points)\n  let valueScore = 0;\n  const propertyValue = utils.validateNumericInput($json['Estimated Value'], 0, 0, 10000000);\n  \n  if (propertyValue >= 800000) {\n    valueScore = 100; // Premium property - high spending capacity\n    propertyReasons.push(`Premium property ($${propertyValue.toLocaleString()}): +100 points - HIGH SPENDING CAPACITY`);\n  } else if (propertyValue >= 600000) {\n    valueScore = 85; // High-value property\n    propertyReasons.push(`High-value property ($${propertyValue.toLocaleString()}): +85 points - HIGH SPENDING CAPACITY`);\n  } else if (propertyValue >= 500000) {\n    valueScore = 75; // Good-value property\n    propertyReasons.push(`Good-value property ($${propertyValue.toLocaleString()}): +75 points - GOOD SPENDING CAPACITY`);\n  } else if (propertyValue >= 400000) {\n    valueScore = 65; // Moderate-value property\n    propertyReasons.push(`Moderate-value property ($${propertyValue.toLocaleString()}): +65 points - MODERATE SPENDING CAPACITY`);\n  } else if (propertyValue >= 300000) {\n    valueScore = 50; // Lower-value property\n    propertyReasons.push(`Lower-value property ($${propertyValue.toLocaleString()}): +50 points - LIMITED SPENDING CAPACITY`);\n  } else if (propertyValue >= 200000) {\n    valueScore = 30; // Low-value property\n    propertyReasons.push(`Low-value property ($${propertyValue.toLocaleString()}): +30 points - LOW SPENDING CAPACITY`);\n  } else {\n    valueScore = 15; // Very low-value property\n    propertyReasons.push(`Very low-value property ($${propertyValue.toLocaleString()}): +15 points - MINIMAL SPENDING CAPACITY`);\n  }\n  \n  utils.logCalculationStep('value_scoring', propertyValue, valueScore, 'Property value-based spending capacity scoring');\n  \n  // 3. PROPERTY SIZE (More to Maintain) (0-100 points)\n  let sizeScore = 0;\n  const buildingSqft = utils.validateNumericInput($json['Living Square Feet'], 0, 0, 50000);\n  const lotSizeAcres = parseFloat($json['Lot (Acres)']) || 0;\n  const lotSizeSqft = lotSizeAcres * 43560; // Convert acres to sqft\n  \n  // Building size scoring\n  if (buildingSqft >= 4000) {\n    sizeScore = 100; // Large building - high maintenance needs\n    propertyReasons.push(`Large building (${buildingSqft.toLocaleString()} sqft): +100 points - HIGH MAINTENANCE NEEDS`);\n  } else if (buildingSqft >= 3000) {\n    sizeScore = 85; // Large building\n    propertyReasons.push(`Large building (${buildingSqft.toLocaleString()} sqft): +85 points - HIGH MAINTENANCE NEEDS`);\n  } else if (buildingSqft >= 2500) {\n    sizeScore = 75; // Good-sized building\n    propertyReasons.push(`Good-sized building (${buildingSqft.toLocaleString()} sqft): +75 points - MODERATE MAINTENANCE NEEDS`);\n  } else if (buildingSqft >= 2000) {\n    sizeScore = 60; // Average-sized building\n    propertyReasons.push(`Average-sized building (${buildingSqft.toLocaleString()} sqft): +60 points - MODERATE MAINTENANCE NEEDS`);\n  } else if (buildingSqft >= 1500) {\n    sizeScore = 40; // Smaller building\n    propertyReasons.push(`Smaller building (${buildingSqft.toLocaleString()} sqft): +40 points - LOW MAINTENANCE NEEDS`);\n  } else if (buildingSqft >= 1000) {\n    sizeScore = 25; // Small building\n    propertyReasons.push(`Small building (${buildingSqft.toLocaleString()} sqft): +25 points - LOW MAINTENANCE NEEDS`);\n  } else {\n    sizeScore = 10; // Very small building\n    propertyReasons.push(`Very small building (${buildingSqft.toLocaleString()} sqft): +10 points - MINIMAL MAINTENANCE NEEDS`);\n  }\n  \n  // Lot size bonus (0-15 points)\n  let lotSizeBonus = 0;\n  if (lotSizeSqft >= 20000) {\n    lotSizeBonus = 15; // Large lot - high landscaping needs\n    propertyReasons.push(`Large lot (${lotSizeSqft.toLocaleString()} sqft): +15 points - HIGH LANDSCAPING NEEDS`);\n  } else if (lotSizeSqft >= 15000) {\n    lotSizeBonus = 12; // Good-sized lot\n    propertyReasons.push(`Good-sized lot (${lotSizeSqft.toLocaleString()} sqft): +12 points - MODERATE LANDSCAPING NEEDS`);\n  } else if (lotSizeSqft >= 10000) {\n    lotSizeBonus = 8; // Average lot\n    propertyReasons.push(`Average lot (${lotSizeSqft.toLocaleString()} sqft): +8 points - MODERATE LANDSCAPING NEEDS`);\n  } else if (lotSizeSqft >= 5000) {\n    lotSizeBonus = 5; // Smaller lot\n    propertyReasons.push(`Smaller lot (${lotSizeSqft.toLocaleString()} sqft): +5 points - LOW LANDSCAPING NEEDS`);\n  } else {\n    lotSizeBonus = 0;\n    propertyReasons.push(`Small lot (${lotSizeSqft.toLocaleString()} sqft): +0 points - MINIMAL LANDSCAPING NEEDS`);\n  }\n  \n  utils.logCalculationStep('size_scoring', `${buildingSqft}/${lotSizeSqft}`, `${sizeScore}+${lotSizeBonus}`, 'Building and lot size scoring');\n  \n  // 4. PROPERTY TYPE (Maintenance Requirements) (0-15 points)\n  let typeScore = 0;\n  const propertyType = $json['Property Type'] || 'Single Family';\n  \n  if (propertyType.toLowerCase().includes('single family') || propertyType.toLowerCase().includes('single-family')) {\n    typeScore = 15; // Single family - highest maintenance needs\n    propertyReasons.push(`Single family home: +15 points - HIGHEST MAINTENANCE REQUIREMENTS`);\n  } else if (propertyType.toLowerCase().includes('townhouse') || propertyType.toLowerCase().includes('townhouse')) {\n    typeScore = 12; // Townhouse - high maintenance needs\n    propertyReasons.push(`Townhouse: +12 points - HIGH MAINTENANCE REQUIREMENTS`);\n  } else if (propertyType.toLowerCase().includes('condo') || propertyType.toLowerCase().includes('condominium')) {\n    typeScore = 8; // Condo - moderate maintenance needs\n    propertyReasons.push(`Condo: +8 points - MODERATE MAINTENANCE REQUIREMENTS`);\n  } else if (propertyType.toLowerCase().includes('multi') || propertyType.toLowerCase().includes('duplex')) {\n    typeScore = 10; // Multi-family - moderate maintenance needs\n    propertyReasons.push(`Multi-family: +10 points - MODERATE MAINTENANCE REQUIREMENTS`);\n  } else {\n    typeScore = 5; // Other types - minimal maintenance needs\n    propertyReasons.push(`${propertyType}: +5 points - MINIMAL MAINTENANCE REQUIREMENTS`);\n  }\n  \n  utils.logCalculationStep('type_scoring', propertyType, typeScore, 'Property type-based maintenance requirement scoring');\n  \n  // 5. BEDROOMS/ROOMS (Maintenance Complexity) (0-10 points)\n  let roomsScore = 0;\n  const bedrooms = utils.validateNumericInput($json['Bedrooms'], 0, 0, 20);\n  const bathrooms = utils.validateNumericInput($json['Bathrooms'], 0, 0, 20);\n  const totalRooms = bedrooms + bathrooms;\n  \n  if (totalRooms >= 8) {\n    roomsScore = 10; // Many rooms - high maintenance complexity\n    propertyReasons.push(`Many rooms (${bedrooms} bed, ${bathrooms} bath): +10 points - HIGH MAINTENANCE COMPLEXITY`);\n  } else if (totalRooms >= 6) {\n    roomsScore = 8; // Good number of rooms\n    propertyReasons.push(`Good number of rooms (${bedrooms} bed, ${bathrooms} bath): +8 points - MODERATE MAINTENANCE COMPLEXITY`);\n  } else if (totalRooms >= 4) {\n    roomsScore = 6; // Average number of rooms\n    propertyReasons.push(`Average rooms (${bedrooms} bed, ${bathrooms} bath): +6 points - MODERATE MAINTENANCE COMPLEXITY`);\n  } else if (totalRooms >= 2) {\n    roomsScore = 4; // Fewer rooms\n    propertyReasons.push(`Fewer rooms (${bedrooms} bed, ${bathrooms} bath): +4 points - LOW MAINTENANCE COMPLEXITY`);\n  } else {\n    roomsScore = 2; // Very few rooms\n    propertyReasons.push(`Very few rooms (${bedrooms} bed, ${bathrooms} bath): +2 points - MINIMAL MAINTENANCE COMPLEXITY`);\n  }\n  \n  utils.logCalculationStep('rooms_scoring', `${bedrooms}+${bathrooms}=${totalRooms}`, roomsScore, 'Room count-based maintenance complexity scoring');\n  \n  // 6. AMENITIES (Maintenance Needs) (0-15 points)\n  let amenitiesScore = 0;\n  const hasPool = $json['Has Pool'] === true || $json['has_pool'] === true;\n  const hasDeck = $json['Has Deck'] === true || $json['has_deck'] === true;\n  const hasBasement = $json['Has Basement'] === true || $json['has_basement'] === true;\n  const numGarages = utils.validateNumericInput($json['Garages'], 0, 0, 10);\n  \n  if (hasPool) {\n    amenitiesScore += 15; // Pool requires significant maintenance\n    propertyReasons.push(`Has pool: +15 points - POOL MAINTENANCE & LANDSCAPING NEEDS`);\n  }\n  \n  if (hasDeck) {\n    amenitiesScore += 10; // Deck requires maintenance\n    propertyReasons.push(`Has deck: +10 points - DECK MAINTENANCE & REPAIR NEEDS`);\n  }\n  \n  if (hasBasement) {\n    amenitiesScore += 8; // Basement requires maintenance\n    propertyReasons.push(`Has basement: +8 points - BASEMENT MAINTENANCE NEEDS`);\n  }\n  \n  if (numGarages >= 3) {\n    amenitiesScore += 5; // Multiple garages\n    propertyReasons.push(`${numGarages} garages: +5 points - GARAGE MAINTENANCE NEEDS`);\n  } else if (numGarages >= 2) {\n    amenitiesScore += 3; // Double garage\n    propertyReasons.push(`${numGarages} garages: +3 points - GARAGE MAINTENANCE NEEDS`);\n  } else if (numGarages >= 1) {\n    amenitiesScore += 1; // Single garage\n    propertyReasons.push(`${numGarages} garage: +1 points - GARAGE MAINTENANCE NEEDS`);\n  }\n  \n  utils.logCalculationStep('amenities_scoring', `Pool:${hasPool}, Deck:${hasDeck}, Basement:${hasBasement}, Garages:${numGarages}`, amenitiesScore, 'Amenities-based maintenance needs scoring');\n  \n  // 7. HOA (Maintenance Standards) (0-15 points)\n  let hoaScore = 0;\n  const hasHoa = $json['Has HOA'] === true || $json['has_hoa'] === true;\n  \n  if (hasHoa) {\n    hoaScore = 15; // HOA enforces maintenance standards\n    propertyReasons.push(`HOA property: +15 points - MAINTENANCE STANDARDS & REQUIREMENTS`);\n  } else {\n    hoaScore = 0; // No external maintenance requirements\n    propertyReasons.push(`No HOA: +0 points - NO EXTERNAL MAINTENANCE REQUIREMENTS`);\n  }\n  \n  utils.logCalculationStep('hoa_scoring', hasHoa, hoaScore, 'HOA-based maintenance requirement scoring');\n  \n  // Calculate total property score with precise rounding\n  const rawScore = ageScore + valueScore + sizeScore + lotSizeBonus + typeScore + roomsScore + amenitiesScore + hoaScore;\n  propertyScore = utils.roundScore(rawScore);\n  \n  utils.logCalculationStep('total_calculation', \n    `Age(${ageScore}) + Value(${valueScore}) + Size(${sizeScore}+${lotSizeBonus}) + Type(${typeScore}) + Rooms(${roomsScore}) + Amenities(${amenitiesScore}) + HOA(${hoaScore})`, \n    propertyScore, \n    'Final property score calculation');\n  \n  // Build comprehensive reasons\n  propertyReasons.push(`=== PROPERTY CHARACTERISTICS SCORE: ${propertyScore}/100 ===`);\n  propertyReasons.push(`Age: ${ageScore} + Value: ${valueScore} + Size: ${sizeScore + lotSizeBonus} + Type: ${typeScore} + Rooms: ${roomsScore} + Amenities: ${amenitiesScore} + HOA: ${hoaScore} = ${propertyScore}`);\n  \n  // Return the result with calculation log\n  return {\n    json: {\n      ...$json, // Preserve all original data\n      \n      // Property scoring results\n      property_score: propertyScore,\n      property_reasons: propertyReasons,\n      \n      // Detailed breakdown\n      property_breakdown: {\n        age_score: ageScore,\n        value_score: valueScore,\n        size_score: sizeScore,\n        lot_size_bonus: lotSizeBonus,\n        type_score: typeScore,\n        rooms_score: roomsScore,\n        amenities_score: amenitiesScore,\n        hoa_score: hoaScore,\n        total_property_score: propertyScore,\n        reference_year: currentYear\n      },\n      \n      // Calculation log for debugging\n      calculation_log: calculationLog,\n      \n      // Validation metadata\n      validation_metadata: {\n        deterministic: true,\n        fixed_reference_year: currentYear,\n        rounding_applied: true,\n        random_functions_eliminated: true\n      }\n    }\n  };\n  \n} catch (error) {\n  // Error handling - return safe defaults\n  console.error('Error in Property Module:', error);\n  \n  return {\n    json: {\n      ...$json, // Preserve original data\n      property_score: 40, // Safe default score\n      property_reasons: [\n        \"Error in property calculation: defaulting to 40 points (deterministic fallback)\",\n        \"Check data quality and try again\",\n        `Error: ${error.message}`\n      ],\n      property_breakdown: {\n        age_score: 40,\n        value_score: 40,\n        size_score: 0,\n        lot_size_bonus: 0,\n        type_score: 0,\n        rooms_score: 0,\n        amenities_score: 0,\n        hoa_score: 0,\n        total_property_score: 40,\n        error: error.message\n      },\n      calculation_log: [{ error: error.message, timestamp: new Date().toISOString() }],\n      validation_metadata: {\n        deterministic: false,\n        error: error.message\n      },\n      error: error.message\n    }\n  };\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4016,
+        992
+      ],
+      "id": "8692d002-c5f4-4b49-8ef8-e4e0e09ce0f5",
+      "name": "Calculate property data1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ENHANCED MODULE 3: FINANCIAL CAPACITY SCORE CALCULATION\n// Ultra-detailed scoring focused on wealth and spending capacity indicators\n\ntry {\n  // Initialize variables\n  let financialScore = 0;\n  let financialReasons = [];\n  \n  // 1. PROPERTY VALUE (Primary Wealth Indicator) (0-100 points)\n  let wealthScore = 0;\n  if ($json.property_value !== undefined && $json.property_value !== null) {\n    const propertyValue = parseInt($json.property_value);\n    \n    if (propertyValue >= 800000) {\n      wealthScore = 100; // Premium wealth\n      financialReasons.push(`Premium property ($${propertyValue.toLocaleString()}): +100 points - PREMIUM WEALTH`);\n    } else if (propertyValue >= 600000) {\n      wealthScore = 85;\n      financialReasons.push(`High-value property ($${propertyValue.toLocaleString()}): +85 points - HIGH WEALTH`);\n    } else if (propertyValue >= 500000) {\n      wealthScore = 75;\n      financialReasons.push(`Good-value property ($${propertyValue.toLocaleString()}): +75 points - GOOD WEALTH`);\n    } else if (propertyValue >= 400000) {\n      wealthScore = 65;\n      financialReasons.push(`Moderate-value property ($${propertyValue.toLocaleString()}): +65 points - MODERATE WEALTH`);\n    } else if (propertyValue >= 300000) {\n      wealthScore = 50;\n      financialReasons.push(`Lower-value property ($${propertyValue.toLocaleString()}): +50 points - LIMITED WEALTH`);\n    } else if (propertyValue >= 200000) {\n      wealthScore = 30;\n      financialReasons.push(`Low-value property ($${propertyValue.toLocaleString()}): +30 points - LOW WEALTH`);\n    } else {\n      wealthScore = 15;\n      financialReasons.push(`Very low-value property ($${propertyValue.toLocaleString()}): +15 points - MINIMAL WEALTH`);\n    }\n  } else {\n    wealthScore = 30; // Default for unknown value\n    financialReasons.push(`Unknown property value: +30 points (default)`);\n  }\n  \n  // 2. ESTIMATED HOUSEHOLD INCOME (from Census by ZIP) (0-100 points)\n  let incomeScore = 0;\n  if ($json.estimated_income !== undefined && $json.estimated_income !== null) {\n    const estimatedIncome = parseInt($json.estimated_income);\n    \n    if (estimatedIncome >= 250000) {\n      incomeScore = 100; // Very high income\n      financialReasons.push(`Very high income ($${estimatedIncome.toLocaleString()}): +100 points - PREMIUM INCOME`);\n    } else if (estimatedIncome >= 200000) {\n      incomeScore = 90;\n      financialReasons.push(`High income ($${estimatedIncome.toLocaleString()}): +90 points - HIGH INCOME`);\n    } else if (estimatedIncome >= 150000) {\n      incomeScore = 80;\n      financialReasons.push(`Good income ($${estimatedIncome.toLocaleString()}): +80 points - GOOD INCOME`);\n    } else if (estimatedIncome >= 125000) {\n      incomeScore = 70;\n      financialReasons.push(`Above-average income ($${estimatedIncome.toLocaleString()}): +70 points - ABOVE-AVERAGE INCOME`);\n    } else if (estimatedIncome >= 100000) {\n      incomeScore = 60;\n      financialReasons.push(`Average income ($${estimatedIncome.toLocaleString()}): +60 points - AVERAGE INCOME`);\n    } else if (estimatedIncome >= 75000) {\n      incomeScore = 45;\n      financialReasons.push(`Below-average income ($${estimatedIncome.toLocaleString()}): +45 points - BELOW-AVERAGE INCOME`);\n    } else if (estimatedIncome >= 50000) {\n      incomeScore = 25;\n      financialReasons.push(`Low income ($${estimatedIncome.toLocaleString()}): +25 points - LOW INCOME`);\n    } else {\n      incomeScore = 10;\n      financialReasons.push(`Very low income ($${estimatedIncome.toLocaleString()}): +10 points - VERY LOW INCOME`);\n    }\n  } else {\n    incomeScore = 40; // Default for unknown income\n    financialReasons.push(`Unknown income: +40 points (default)`);\n  }\n  \n  // 3. DOWN PAYMENT INDICATOR (Available Cash) (0-25 points)\n  let downPaymentBonus = 0;\n  if ($json.down_payment_amount !== undefined && $json.down_payment_amount !== null && $json.property_value !== undefined && $json.property_value !== null) {\n    const downPaymentAmount = parseInt($json.down_payment_amount);\n    const purchasePrice = parseInt($json.property_value);\n    const downPaymentPercent = (downPaymentAmount / purchasePrice) * 100;\n    \n    if (downPaymentPercent >= 30) {\n      downPaymentBonus = 25; // Lots of cash available\n      financialReasons.push(`Large down payment (${downPaymentPercent.toFixed(1)}%): +25 points - LOTS OF CASH AVAILABLE`);\n    } else if (downPaymentPercent >= 20) {\n      downPaymentBonus = 15;\n      financialReasons.push(`Good down payment (${downPaymentPercent.toFixed(1)}%): +15 points - GOOD CASH AVAILABLE`);\n    } else if (downPaymentPercent >= 10) {\n      downPaymentBonus = 5;\n      financialReasons.push(`Moderate down payment (${downPaymentPercent.toFixed(1)}%): +5 points - SOME CASH AVAILABLE`);\n    } else {\n      downPaymentBonus = -10; // Leveraged, less cash available\n      financialReasons.push(`Small down payment (${downPaymentPercent.toFixed(1)}%): -10 points - LEVERAGED (less cash)`);\n    }\n  } else {\n    // Estimate based on property value and recent purchase\n    if ($json.property_value >= 600000 && $json.days_since_purchase <= 90) {\n      downPaymentBonus = 15; // High-value recent purchase likely had substantial down payment\n      financialReasons.push(`High-value recent purchase: +15 points - LIKELY SUBSTANTIAL DOWN PAYMENT`);\n    } else if ($json.property_value >= 400000) {\n      downPaymentBonus = 5;\n      financialReasons.push(`Moderate-value property: +5 points - LIKELY MODERATE DOWN PAYMENT`);\n    } else {\n      downPaymentBonus = 0;\n      financialReasons.push(`No down payment data available: +0 points (default)`);\n    }\n  }\n  \n  // 4. PROPERTY TAX TREND (Wealth Growth Indicator) (0-20 points)\n  let taxTrendBonus = 0;\n  if ($json.property_tax_trend !== undefined && $json.property_tax_trend !== null) {\n    const taxTrend = $json.property_tax_trend.toLowerCase();\n    \n    if (taxTrend === 'increasing_fast' || taxTrend === 'increasing_10plus') {\n      taxTrendBonus = 20; // Area is rapidly improving\n      financialReasons.push(`Rapidly increasing property taxes: +20 points - AREA RAPIDLY IMPROVING`);\n    } else if (taxTrend === 'increasing') {\n      taxTrendBonus = 10; // Area is improving\n      financialReasons.push(`Increasing property taxes: +10 points - AREA IMPROVING`);\n    } else if (taxTrend === 'stable') {\n      taxTrendBonus = 5; // Stable area\n      financialReasons.push(`Stable property taxes: +5 points - STABLE AREA`);\n    } else if (taxTrend === 'decreasing') {\n      taxTrendBonus = -5; // Area declining\n      financialReasons.push(`Decreasing property taxes: -5 points - AREA DECLINING`);\n    } else {\n      taxTrendBonus = 0; // Unknown trend\n      financialReasons.push(`Unknown tax trend: +0 points`);\n    }\n  } else {\n    taxTrendBonus = 5; // Default for unknown tax trend\n    financialReasons.push(`Unknown tax trend: +5 points (default)`);\n  }\n  \n  // 5. VALUE-TO-INCOME RATIO (Spending Capacity) (0-15 points)\n  let ratioBonus = 0;\n  if ($json.property_value !== undefined && $json.property_value !== null && $json.estimated_income !== undefined && $json.estimated_income !== null) {\n    const propertyValue = parseInt($json.property_value);\n    const estimatedIncome = parseInt($json.estimated_income);\n    const valueToIncomeRatio = propertyValue / estimatedIncome;\n    \n    if (valueToIncomeRatio <= 3) {\n      ratioBonus = 15; // Conservative purchase = lots of disposable income\n      financialReasons.push(`Conservative purchase (${valueToIncomeRatio.toFixed(1)}x income): +15 points - LOTS OF DISPOSABLE INCOME`);\n    } else if (valueToIncomeRatio <= 4) {\n      ratioBonus = 10;\n      financialReasons.push(`Moderate purchase (${valueToIncomeRatio.toFixed(1)}x income): +10 points - GOOD DISPOSABLE INCOME`);\n    } else if (valueToIncomeRatio <= 5) {\n      ratioBonus = 5;\n      financialReasons.push(`Standard purchase (${valueToIncomeRatio.toFixed(1)}x income): +5 points - SOME DISPOSABLE INCOME`);\n    } else if (valueToIncomeRatio > 6) {\n      ratioBonus = -10; // House poor\n      financialReasons.push(`Stretched purchase (${valueToIncomeRatio.toFixed(1)}x income): -10 points - HOUSE POOR (limited disposable income)`);\n    } else {\n      ratioBonus = 0;\n      financialReasons.push(`Moderate stretch (${valueToIncomeRatio.toFixed(1)}x income): +0 points - MODERATE DISPOSABLE INCOME`);\n    }\n  } else {\n    ratioBonus = 5; // Default for unknown ratio\n    financialReasons.push(`Unknown value-to-income ratio: +5 points (default)`);\n  }\n  \n  // 6. CALCULATE FINAL FINANCIAL SCORE\n  const baseFinancialScore = (wealthScore + incomeScore) / 2;\n  const rawScore = baseFinancialScore + downPaymentBonus + taxTrendBonus + ratioBonus;\n  \n  // Normalize to 0-100 scale\n  financialScore = Math.max(Math.min(rawScore, 100), 0);\n  \n  // Add summary to reasons\n  financialReasons.push(`Base Score: ${Math.round(baseFinancialScore)} + Bonuses: ${downPaymentBonus + taxTrendBonus + ratioBonus} = FINAL FINANCIAL SCORE: ${Math.round(financialScore)}/100`);\n  \n  // Return the result\n  return [{\n    json: {\n      ...$json, // Preserve all original data (including enhanced urgency_score and property_score)\n      financial_score: Math.round(financialScore),\n      financial_reasons: financialReasons,\n      financial_breakdown: {\n        wealth_score: wealthScore,\n        income_score: incomeScore,\n        base_financial_score: Math.round(baseFinancialScore),\n        down_payment_bonus: downPaymentBonus,\n        tax_trend_bonus: taxTrendBonus,\n        ratio_bonus: ratioBonus,\n        final_financial_score: Math.round(financialScore)\n      }\n    }\n  }];\n  \n} catch (error) {\n  // Error handling - return safe defaults\n  console.error('Error in Enhanced Financial Module:', error);\n  \n  return [{\n    json: {\n      ...$json, // Preserve original data\n      financial_score: 30, // Safe default score\n      financial_reasons: [\n        \"Error in financial calculation: +30 points (default)\",\n        \"Check data quality and try again\"\n      ],\n      financial_breakdown: {\n        wealth_score: 15,\n        income_score: 15,\n        base_financial_score: 15,\n        down_payment_bonus: 5,\n        tax_trend_bonus: 5,\n        ratio_bonus: 5,\n        final_financial_score: 30\n      },\n      error: error.message\n    }\n  }];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4256,
+        992
+      ],
+      "id": "56d8d5a4-4d96-4b89-96e7-99e2f4d69854",
+      "name": "Calculate Financial Score1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ENHANCED MODULE 4: DEMOGRAPHIC FIT SCORE CALCULATION\n// Ultra-detailed scoring focused on spending behavior and neighborhood quality indicators\n\ntry {\n  // Initialize variables\n  let demographicScore = 0;\n  let demographicReasons = [];\n  \n  // 1. ESTIMATED AGE (Peak Spending Demographics) (0-90 points)\n  let ageScore = 0;\n  let estimatedAge = 35; // Default estimate\n  \n  // Estimate age based on property characteristics (more sophisticated)\n  if ($json.property_value !== undefined && $json.property_value !== null) {\n    const propertyValue = parseInt($json.property_value);\n    const familySize = $json.family_size || 2;\n    const bedrooms = $json.bedrooms || 3;\n    const schoolRating = $json.school_rating || 5;\n    \n    // More sophisticated age estimation\n    if (propertyValue >= 600000 && familySize >= 4 && bedrooms >= 4 && schoolRating >= 8) {\n      estimatedAge = 45; // Established family with high-value home in good school district\n    } else if (propertyValue >= 500000 && familySize >= 3 && bedrooms >= 3) {\n      estimatedAge = 42; // Growing family with good income\n    } else if (propertyValue >= 400000 && familySize >= 2) {\n      estimatedAge = 38; // Young professional couple\n    } else if (propertyValue >= 300000) {\n      estimatedAge = 35; // Young professional/family\n    } else if (propertyValue >= 200000) {\n      estimatedAge = 32; // Younger buyer\n    } else {\n      estimatedAge = 28; // Very young buyer\n    }\n  }\n  \n  // Score based on estimated age (peak spending years)\n  if (estimatedAge >= 40 && estimatedAge <= 55) {\n    ageScore = 90; // Peak earning + spending years - highest score\n    demographicReasons.push(`Estimated age ${estimatedAge} (peak earning/spending): +90 points - PEAK SPENDING YEARS`);\n  } else if (estimatedAge >= 35 && estimatedAge < 40) {\n    ageScore = 75; // High earning years\n    demographicReasons.push(`Estimated age ${estimatedAge} (high earning years): +75 points - HIGH SPENDING YEARS`);\n  } else if (estimatedAge >= 55 && estimatedAge <= 65) {\n    ageScore = 80; // Pre-retirement, peak wealth\n    demographicReasons.push(`Estimated age ${estimatedAge} (pre-retirement wealth): +80 points - PEAK WEALTH YEARS`);\n  } else if (estimatedAge >= 30 && estimatedAge < 35) {\n    ageScore = 60; // Building wealth\n    demographicReasons.push(`Estimated age ${estimatedAge} (building wealth): +60 points - BUILDING SPENDING CAPACITY`);\n  } else if (estimatedAge >= 65 && estimatedAge <= 75) {\n    ageScore = 60; // Retired, fixed income but may have savings\n    demographicReasons.push(`Estimated age ${estimatedAge} (retired with savings): +60 points - RETIRED WITH SAVINGS`);\n  } else if (estimatedAge > 75) {\n    ageScore = 30; // Older, less likely to spend on major projects\n    demographicReasons.push(`Estimated age ${estimatedAge} (older demographic): +30 points - LIMITED SPENDING`);\n  } else {\n    ageScore = 40; // Under 30, limited budget\n    demographicReasons.push(`Estimated age ${estimatedAge} (young adult): +40 points - LIMITED BUDGET`);\n  }\n  \n  // 2. FAMILY INDICATORS (Spending Motivation) (0-50 points)\n  let familyBonus = 0;\n  \n  // School district quality (indicates families with kids = more spending)\n  if ($json.school_rating !== undefined && $json.school_rating !== null) {\n    const schoolRating = parseInt($json.school_rating);\n    if (schoolRating >= 9) {\n      familyBonus += 25; // Excellent schools = families with kids = more spending\n      demographicReasons.push(`Excellent school district (rating ${schoolRating}): +25 points - FAMILIES WITH KIDS = MORE SPENDING`);\n    } else if (schoolRating >= 7) {\n      familyBonus += 15; // Good schools\n      demographicReasons.push(`Good school district (rating ${schoolRating}): +15 points - FAMILIES = MORE SPENDING`);\n    } else if (schoolRating >= 5) {\n      familyBonus += 5; // Average schools\n      demographicReasons.push(`Average school district (rating ${schoolRating}): +5 points - SOME FAMILIES`);\n    } else {\n      familyBonus += 0; // Poor schools\n      demographicReasons.push(`Poor school district (rating ${schoolRating}): +0 points - FEWER FAMILIES`);\n    }\n  } else {\n    demographicReasons.push(`Unknown school rating: +10 points (default)`);\n    familyBonus += 10;\n  }\n  \n  // Bedroom count (indicates family size = more spending)\n  if ($json.bedrooms !== undefined && $json.bedrooms !== null) {\n    const bedrooms = parseInt($json.bedrooms);\n    if (bedrooms >= 4) {\n      familyBonus += 15; // Large family home = more spending\n      demographicReasons.push(`${bedrooms} bedrooms: +15 points - LARGE FAMILY = MORE SPENDING`);\n    } else if (bedrooms === 3) {\n      familyBonus += 10; // Family home\n      demographicReasons.push(`${bedrooms} bedrooms: +10 points - FAMILY HOME = MORE SPENDING`);\n    } else {\n      familyBonus += 0; // Smaller home\n      demographicReasons.push(`${bedrooms} bedrooms: +0 points - SMALLER HOME = LESS SPENDING`);\n    }\n  } else {\n    demographicReasons.push(`Unknown bedroom count: +5 points (default)`);\n    familyBonus += 5;\n  }\n  \n  // Family size (more people = more spending)\n  if ($json.family_size !== undefined && $json.family_size !== null) {\n    const familySize = parseInt($json.family_size);\n    if (familySize >= 4) {\n      familyBonus += 10; // Large family = more spending\n      demographicReasons.push(`Large family (${familySize} people): +10 points - LARGE FAMILY = MORE SPENDING`);\n    } else if (familySize === 3) {\n      familyBonus += 5; // Growing family\n      demographicReasons.push(`Growing family (${familySize} people): +5 points - GROWING FAMILY = MORE SPENDING`);\n    } else {\n      familyBonus += 0; // Small family or single\n      demographicReasons.push(`Small family (${familySize} people): +0 points - SMALL FAMILY = LESS SPENDING`);\n    }\n  } else {\n    demographicReasons.push(`Unknown family size: +5 points (default)`);\n    familyBonus += 5;\n  }\n  \n  // Cap family bonus at 50 points\n  familyBonus = Math.min(familyBonus, 50);\n  \n  // 3. NEIGHBORHOOD QUALITY (Pride of Ownership) (0-35 points)\n  let neighborhoodBonus = 0;\n  \n  // Neighborhood median value trend (pride of ownership)\n  if ($json.neighborhood_value_trend !== undefined && $json.neighborhood_value_trend !== null) {\n    const valueTrend = $json.neighborhood_value_trend.toLowerCase();\n    \n    if (valueTrend === 'increasing_fast' || valueTrend === 'increasing_10plus') {\n      neighborhoodBonus += 20; // Area rapidly improving = pride of ownership\n      demographicReasons.push(`Rapidly increasing neighborhood values: +20 points - AREA RAPIDLY IMPROVING = PRIDE OF OWNERSHIP`);\n    } else if (valueTrend === 'increasing') {\n      neighborhoodBonus += 15; // Area improving = pride of ownership\n      demographicReasons.push(`Increasing neighborhood values: +15 points - AREA IMPROVING = PRIDE OF OWNERSHIP`);\n    } else if (valueTrend === 'stable') {\n      neighborhoodBonus += 10; // Stable area = good maintenance\n      demographicReasons.push(`Stable neighborhood values: +10 points - STABLE AREA = GOOD MAINTENANCE`);\n    } else if (valueTrend === 'declining') {\n      neighborhoodBonus += -10; // Declining area = less pride\n      demographicReasons.push(`Declining neighborhood values: -10 points - AREA DECLINING = LESS PRIDE`);\n    } else {\n      neighborhoodBonus += 5; // Unknown trend\n      demographicReasons.push(`Unknown neighborhood trend: +5 points`);\n    }\n  } else {\n    neighborhoodBonus += 10; // Default for unknown trend\n    demographicReasons.push(`Unknown neighborhood trend: +10 points (default)`);\n  }\n  \n  // Neighborhood median income (peer pressure to maintain/improve)\n  if ($json.neighborhood_median_income !== undefined && $json.neighborhood_median_income !== null) {\n    const neighborhoodIncome = parseInt($json.neighborhood_median_income);\n    if (neighborhoodIncome >= 150000) {\n      neighborhoodBonus += 15; // High-income neighborhood = peer pressure\n      demographicReasons.push(`High-income neighborhood ($${neighborhoodIncome.toLocaleString()}): +15 points - PEER PRESSURE TO MAINTAIN/IMPROVE`);\n    } else if (neighborhoodIncome >= 100000) {\n      neighborhoodBonus += 10;\n      demographicReasons.push(`Good-income neighborhood ($${neighborhoodIncome.toLocaleString()}): +10 points - SOME PEER PRESSURE`);\n    } else if (neighborhoodIncome >= 75000) {\n      neighborhoodBonus += 5;\n      demographicReasons.push(`Average-income neighborhood ($${neighborhoodIncome.toLocaleString()}): +5 points - MODERATE PEER PRESSURE`);\n    } else {\n      neighborhoodBonus += 0;\n      demographicReasons.push(`Lower-income neighborhood ($${neighborhoodIncome.toLocaleString()}): +0 points - LESS PEER PRESSURE`);\n    }\n  } else {\n    // Estimate based on property value and school rating\n    if ($json.property_value >= 500000 && $json.school_rating >= 8) {\n      neighborhoodBonus += 10; // High-value property in good school district = likely high-income neighborhood\n      demographicReasons.push(`High-value property in good school district: +10 points - LIKELY HIGH-INCOME NEIGHBORHOOD`);\n    } else {\n      neighborhoodBonus += 5;\n      demographicReasons.push(`Unknown neighborhood income: +5 points (default)`);\n    }\n  }\n  \n  // Cap neighborhood bonus at 35 points\n  neighborhoodBonus = Math.min(neighborhoodBonus, 35);\n  \n  // 4. LOCATION TYPE (Spending Behavior) (0-15 points)\n  let locationBonus = 0;\n  if ($json.neighborhood_type !== undefined && $json.neighborhood_type !== null) {\n    const locationType = $json.neighborhood_type.toLowerCase();\n    if (locationType === 'suburban') {\n      locationBonus = 15; // Most home improvement activity\n      demographicReasons.push(`Suburban location: +15 points - MOST HOME IMPROVEMENT ACTIVITY`);\n    } else if (locationType === 'urban' || locationType === 'urban_prime') {\n      locationBonus = 10; // Urban areas have some improvement activity\n      demographicReasons.push(`Urban location: +10 points - SOME HOME IMPROVEMENT ACTIVITY`);\n    } else if (locationType === 'rural') {\n      locationBonus = 5; // Rural areas have limited improvement activity\n      demographicReasons.push(`Rural location: +5 points - LIMITED HOME IMPROVEMENT ACTIVITY`);\n    } else {\n      locationBonus = 8; // Default for other types\n      demographicReasons.push(`${locationType} location: +8 points - MODERATE HOME IMPROVEMENT ACTIVITY`);\n    }\n  } else {\n    locationBonus = 8; // Default for unknown location type\n    demographicReasons.push(`Unknown location type: +8 points (default)`);\n  }\n  \n  // 5. CALCULATE FINAL DEMOGRAPHIC SCORE\n  const rawScore = ageScore + familyBonus + neighborhoodBonus + locationBonus;\n  \n  // Normalize to 0-100 scale (190 max becomes 100)\n  demographicScore = Math.round((rawScore / 190) * 100);\n  \n  // Ensure bounds\n  demographicScore = Math.min(demographicScore, 100);\n  demographicScore = Math.max(demographicScore, 0);\n  \n  // Add summary to reasons\n  demographicReasons.push(`Raw Score: ${rawScore}/190 → Normalized: ${demographicScore}/100`);\n  \n  // Return the result\n  return [{\n    json: {\n      ...$json, // Preserve all original data (including enhanced urgency_score, property_score, and financial_score)\n      demographic_score: demographicScore,\n      demographic_reasons: demographicReasons,\n      demographic_breakdown: {\n        estimated_age: estimatedAge,\n        age_score: ageScore,\n        family_bonus: familyBonus,\n        neighborhood_bonus: neighborhoodBonus,\n        location_bonus: locationBonus,\n        raw_score: rawScore,\n        normalized_score: demographicScore\n      }\n    }\n  }];\n  \n} catch (error) {\n  // Error handling - return safe defaults\n  console.error('Error in Enhanced Demographic Module:', error);\n  \n  return [{\n    json: {\n      ...$json, // Preserve original data\n      demographic_score: 30, // Safe default score\n      demographic_reasons: [\n        \"Error in demographic calculation: +30 points (default)\",\n        \"Check data quality and try again\"\n      ],\n      demographic_breakdown: {\n        estimated_age: 35,\n        age_score: 20,\n        family_bonus: 10,\n        neighborhood_bonus: 10,\n        location_bonus: 5,\n        raw_score: 45,\n        normalized_score: 30\n      },\n      error: error.message\n    }\n  }];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4448,
+        992
+      ],
+      "id": "ca331d27-6f17-4630-9974-3be1536d33a6",
+      "name": "Calculate Demographic Score1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ENHANCED MODULE 5: MARKET CONDITIONS SCORE CALCULATION\n// Ultra-detailed scoring focused on market saturation, competitor analysis, and economic indicators\n\ntry {\n  // Initialize variables\n  let marketScore = 0;\n  let marketReasons = [];\n  \n  // 1. MARKET SATURATION (Competition Level) (0-100 points)\n  let saturationScore = 0;\n  \n  // Competitor density analysis\n  if ($json.competitor_count !== undefined && $json.competitor_count !== null) {\n    const competitorCount = parseInt($json.competitor_count);\n    \n    if (competitorCount <= 2) {\n      saturationScore = 100; // Low competition = high opportunity\n      marketReasons.push(`Low competition (${competitorCount} competitors): +100 points - HIGH OPPORTUNITY`);\n    } else if (competitorCount <= 5) {\n      saturationScore = 80; // Moderate competition\n      marketReasons.push(`Moderate competition (${competitorCount} competitors): +80 points - GOOD OPPORTUNITY`);\n    } else if (competitorCount <= 10) {\n      saturationScore = 60; // High competition\n      marketReasons.push(`High competition (${competitorCount} competitors): +60 points - MODERATE OPPORTUNITY`);\n    } else if (competitorCount <= 20) {\n      saturationScore = 40; // Very high competition\n      marketReasons.push(`Very high competition (${competitorCount} competitors): +40 points - LIMITED OPPORTUNITY`);\n    } else {\n      saturationScore = 20; // Saturated market\n      marketReasons.push(`Saturated market (${competitorCount}+ competitors): +20 points - LOW OPPORTUNITY`);\n    }\n  } else {\n    // Estimate based on population density\n    if ($json.population_density !== undefined && $json.population_density !== null) {\n      const populationDensity = parseInt($json.population_density);\n      if (populationDensity <= 1000) {\n        saturationScore = 90; // Rural = low competition\n        marketReasons.push(`Rural area (${populationDensity} people/sq mi): +90 points - LOW COMPETITION`);\n      } else if (populationDensity <= 5000) {\n        saturationScore = 70; // Suburban = moderate competition\n        marketReasons.push(`Suburban area (${populationDensity} people/sq mi): +70 points - MODERATE COMPETITION`);\n      } else {\n        saturationScore = 50; // Urban = high competition\n        marketReasons.push(`Urban area (${populationDensity} people/sq mi): +50 points - HIGH COMPETITION`);\n      }\n    } else {\n      saturationScore = 60; // Default moderate competition\n      marketReasons.push(`Unknown competition level: +60 points (default)`);\n    }\n  }\n  \n  // 2. MARKET GROWTH (Economic Health) (0-80 points)\n  let growthScore = 0;\n  \n  // Property value growth trend\n  if ($json.market_growth_rate !== undefined && $json.market_growth_rate !== null) {\n    const growthRate = parseFloat($json.market_growth_rate);\n    \n    if (growthRate >= 15) {\n      growthScore = 80; // Rapidly growing market\n      marketReasons.push(`Rapid market growth (${growthRate}%): +80 points - BOOMING MARKET`);\n    } else if (growthRate >= 10) {\n      growthScore = 70; // Strong growth\n      marketReasons.push(`Strong market growth (${growthRate}%): +70 points - STRONG MARKET`);\n    } else if (growthRate >= 5) {\n      growthScore = 60; // Moderate growth\n      marketReasons.push(`Moderate market growth (${growthRate}%): +60 points - HEALTHY MARKET`);\n    } else if (growthRate >= 0) {\n      growthScore = 40; // Stable market\n      marketReasons.push(`Stable market (${growthRate}%): +40 points - STABLE MARKET`);\n    } else {\n      growthScore = 20; // Declining market\n      marketReasons.push(`Declining market (${growthRate}%): +20 points - WEAK MARKET`);\n    }\n  } else {\n    // Estimate based on neighborhood value trend\n    if ($json.neighborhood_value_trend !== undefined && $json.neighborhood_value_trend !== null) {\n      const valueTrend = $json.neighborhood_value_trend.toLowerCase();\n      if (valueTrend === 'increasing_fast' || valueTrend === 'increasing_10plus') {\n        growthScore = 70; // Rapidly increasing values\n        marketReasons.push(`Rapidly increasing neighborhood values: +70 points - STRONG MARKET`);\n      } else if (valueTrend === 'increasing') {\n        growthScore = 60; // Increasing values\n        marketReasons.push(`Increasing neighborhood values: +60 points - HEALTHY MARKET`);\n      } else if (valueTrend === 'stable') {\n        growthScore = 40; // Stable values\n        marketReasons.push(`Stable neighborhood values: +40 points - STABLE MARKET`);\n      } else {\n        growthScore = 20; // Declining values\n        marketReasons.push(`Declining neighborhood values: +20 points - WEAK MARKET`);\n      }\n    } else {\n      growthScore = 50; // Default moderate growth\n      marketReasons.push(`Unknown market growth: +50 points (default)`);\n    }\n  }\n  \n  // 3. ECONOMIC INDICATORS (Spending Power) (0-60 points)\n  let economicScore = 0;\n  \n  // Unemployment rate\n  if ($json.unemployment_rate !== undefined && $json.unemployment_rate !== null) {\n    const unemploymentRate = parseFloat($json.unemployment_rate);\n    \n    if (unemploymentRate <= 3) {\n      economicScore += 30; // Very low unemployment = high spending power\n      marketReasons.push(`Very low unemployment (${unemploymentRate}%): +30 points - HIGH SPENDING POWER`);\n    } else if (unemploymentRate <= 5) {\n      economicScore += 25; // Low unemployment\n      marketReasons.push(`Low unemployment (${unemploymentRate}%): +25 points - GOOD SPENDING POWER`);\n    } else if (unemploymentRate <= 7) {\n      economicScore += 15; // Moderate unemployment\n      marketReasons.push(`Moderate unemployment (${unemploymentRate}%): +15 points - MODERATE SPENDING POWER`);\n    } else if (unemploymentRate <= 10) {\n      economicScore += 5; // High unemployment\n      marketReasons.push(`High unemployment (${unemploymentRate}%): +5 points - LIMITED SPENDING POWER`);\n    } else {\n      economicScore += 0; // Very high unemployment\n      marketReasons.push(`Very high unemployment (${unemploymentRate}%): +0 points - LOW SPENDING POWER`);\n    }\n  } else {\n    economicScore += 15; // Default moderate unemployment\n    marketReasons.push(`Unknown unemployment rate: +15 points (default)`);\n  }\n  \n  // Median household income trend\n  if ($json.income_trend !== undefined && $json.income_trend !== null) {\n    const incomeTrend = $json.income_trend.toLowerCase();\n    if (incomeTrend === 'increasing_fast' || incomeTrend === 'increasing_10plus') {\n      economicScore += 30; // Rapidly increasing income\n      marketReasons.push(`Rapidly increasing income: +30 points - STRONG ECONOMIC GROWTH`);\n    } else if (incomeTrend === 'increasing') {\n      economicScore += 20; // Increasing income\n      marketReasons.push(`Increasing income: +20 points - GOOD ECONOMIC GROWTH`);\n    } else if (incomeTrend === 'stable') {\n      economicScore += 10; // Stable income\n      marketReasons.push(`Stable income: +10 points - STABLE ECONOMIC CONDITIONS`);\n    } else {\n      economicScore += 0; // Declining income\n      marketReasons.push(`Declining income: +0 points - WEAK ECONOMIC CONDITIONS`);\n    }\n  } else {\n    economicScore += 15; // Default moderate income trend\n    marketReasons.push(`Unknown income trend: +15 points (default)`);\n  }\n  \n  // Cap economic score at 60 points\n  economicScore = Math.min(economicScore, 60);\n  \n  // 4. SEASONAL MARKET CONDITIONS (0-40 points)\n  let seasonalScore = 0;\n  const currentMonth = new Date().getMonth() + 1;\n  \n  // Spring and fall are peak seasons for home improvement\n  if ([3, 4, 5].includes(currentMonth)) {\n    seasonalScore = 40; // Spring - peak season\n    marketReasons.push(`Spring season (March-May): +40 points - PEAK HOME IMPROVEMENT SEASON`);\n  } else if ([9, 10].includes(currentMonth)) {\n    seasonalScore = 35; // Fall - high season\n    marketReasons.push(`Fall season (September-October): +35 points - HIGH HOME IMPROVEMENT SEASON`);\n  } else if ([6, 7, 8].includes(currentMonth)) {\n    seasonalScore = 25; // Summer - moderate season\n    marketReasons.push(`Summer season (June-August): +25 points - MODERATE HOME IMPROVEMENT SEASON`);\n  } else {\n    seasonalScore = 15; // Winter - low season\n    marketReasons.push(`Winter season (November-February): +15 points - LOW HOME IMPROVEMENT SEASON`);\n  }\n  \n  // 5. MARKET MATURITY (0-30 points)\n  let maturityScore = 0;\n  \n  // Market maturity based on property age distribution\n  if ($json.market_maturity !== undefined && $json.market_maturity !== null) {\n    const maturity = $json.market_maturity.toLowerCase();\n    if (maturity === 'emerging') {\n      maturityScore = 30; // Emerging market = high opportunity\n      marketReasons.push(`Emerging market: +30 points - HIGH OPPORTUNITY`);\n    } else if (maturity === 'growing') {\n      maturityScore = 25; // Growing market\n      marketReasons.push(`Growing market: +25 points - GOOD OPPORTUNITY`);\n    } else if (maturity === 'mature') {\n      maturityScore = 15; // Mature market\n      marketReasons.push(`Mature market: +15 points - MODERATE OPPORTUNITY`);\n    } else if (maturity === 'declining') {\n      maturityScore = 5; // Declining market\n      marketReasons.push(`Declining market: +5 points - LOW OPPORTUNITY`);\n    } else {\n      maturityScore = 20; // Unknown maturity\n      marketReasons.push(`Unknown market maturity: +20 points (default)`);\n    }\n  } else {\n    // Estimate based on property age\n    if ($json.year_built !== undefined && $json.year_built !== null) {\n      const yearBuilt = parseInt($json.year_built);\n      const currentYear = new Date().getFullYear();\n      const propertyAge = currentYear - yearBuilt;\n      \n      if (propertyAge <= 10) {\n        maturityScore = 25; // New development = emerging market\n        marketReasons.push(`New development (${propertyAge} years old): +25 points - EMERGING MARKET`);\n      } else if (propertyAge <= 25) {\n        maturityScore = 20; // Established development = growing market\n        marketReasons.push(`Established development (${propertyAge} years old): +20 points - GROWING MARKET`);\n      } else {\n        maturityScore = 15; // Older development = mature market\n        marketReasons.push(`Older development (${propertyAge} years old): +15 points - MATURE MARKET`);\n      }\n    } else {\n      maturityScore = 20; // Default moderate maturity\n      marketReasons.push(`Unknown market maturity: +20 points (default)`);\n    }\n  }\n  \n  // 6. CALCULATE FINAL MARKET SCORE\n  const rawScore = saturationScore + growthScore + economicScore + seasonalScore + maturityScore;\n  \n  // Normalize to 0-100 scale (310 max becomes 100)\n  marketScore = Math.round((rawScore / 310) * 100);\n  \n  // Ensure bounds\n  marketScore = Math.min(marketScore, 100);\n  marketScore = Math.max(marketScore, 0);\n  \n  // Add summary to reasons\n  marketReasons.push(`Raw Score: ${rawScore}/310 → Normalized: ${marketScore}/100`);\n  \n  // Return the result\n  return [{\n    json: {\n      ...$json, // Preserve all original data (including enhanced urgency_score, property_score, financial_score, and demographic_score)\n      market_score: marketScore,\n      market_reasons: marketReasons,\n      market_breakdown: {\n        saturation_score: saturationScore,\n        growth_score: growthScore,\n        economic_score: economicScore,\n        seasonal_score: seasonalScore,\n        maturity_score: maturityScore,\n        raw_score: rawScore,\n        normalized_score: marketScore\n      }\n    }\n  }];\n  \n} catch (error) {\n  // Error handling - return safe defaults\n  console.error('Error in Enhanced Market Module:', error);\n  \n  return [{\n    json: {\n      ...$json, // Preserve original data\n      market_score: 40, // Safe default score\n      market_reasons: [\n        \"Error in market calculation: +40 points (default)\",\n        \"Check data quality and try again\"\n      ],\n      market_breakdown: {\n        saturation_score: 60,\n        growth_score: 50,\n        economic_score: 30,\n        seasonal_score: 25,\n        maturity_score: 20,\n        raw_score: 185,\n        normalized_score: 40\n      },\n      error: error.message\n    }\n  }];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4656,
+        992
+      ],
+      "id": "230ef2a8-efe2-4023-b3bf-422bfc7bdf7b",
+      "name": "Calculate Market Score1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// UNIVERSAL FINAL SCORING MODULE - HOT LEAD FINDER\n// Combines all 5 enhanced modules with universal weights (no service classification)\n// Output: Universal spending likelihood score + tier assignment + comprehensive breakdown\n\ntry {\n  // Initialize variables\n  let finalScore = 0;\n  let tier = '';\n  let tierDescription = '';\n  let finalReasons = [];\n  \n  // Get individual module scores\n  const urgencyScore = $json.urgency_score || 0;\n  const propertyScore = $json.property_score || 0;\n  const financialScore = $json.financial_score || 0;\n  const demographicScore = $json.demographic_score || 0;\n  const marketScore = $json.market_score || 0;\n  \n  // UNIVERSAL WEIGHTS (Optimized for general spending likelihood)\n  const weights = {\n    urgency: 0.25,      // 25% - Timing is crucial for new homeowners\n    property: 0.20,     // 20% - Property characteristics drive renovation needs\n    financial: 0.25,    // 25% - Financial capacity determines spending ability\n    demographic: 0.20,  // 20% - Demographics predict spending behavior\n    market: 0.10        // 10% - Market conditions affect opportunity\n  };\n  \n  // Calculate weighted final score\n  const weightedScore = (\n    (urgencyScore * weights.urgency) +\n    (propertyScore * weights.property) +\n    (financialScore * weights.financial) +\n    (demographicScore * weights.demographic) +\n    (marketScore * weights.market)\n  );\n  \n  // Round to whole number\n  finalScore = Math.round(weightedScore);\n  \n  // Ensure bounds\n  finalScore = Math.min(finalScore, 100);\n  finalScore = Math.max(finalScore, 0);\n  \n  // TIER ASSIGNMENT (Universal spending likelihood tiers)\n  if (finalScore >= 85) {\n    tier = 'HOT';\n    tierDescription = 'ULTRA-HIGH SPENDING LIKELIHOOD - IMMEDIATE PRIORITY';\n  } else if (finalScore >= 75) {\n    tier = 'WARM';\n    tierDescription = 'HIGH SPENDING LIKELIHOOD - HIGH PRIORITY';\n  } else if (finalScore >= 60) {\n    tier = 'COOL';\n    tierDescription = 'MODERATE SPENDING LIKELIHOOD - MEDIUM PRIORITY';\n  } else if (finalScore >= 40) {\n    tier = 'COLD';\n    tierDescription = 'LOW SPENDING LIKELIHOOD - LOW PRIORITY';\n  } else {\n    tier = 'FROZEN';\n    tierDescription = 'MINIMAL SPENDING LIKELIHOOD - MINIMAL PRIORITY';\n  }\n  \n  // Build comprehensive reasons array\n  finalReasons.push(`=== UNIVERSAL FINAL SCORE: ${finalScore}/100 ===`);\n  finalReasons.push(`=== TIER: ${tier} - ${tierDescription} ===`);\n  finalReasons.push('');\n  \n  // Module breakdown with weights\n  finalReasons.push('MODULE BREAKDOWN:');\n  finalReasons.push(`• Urgency/Timing: ${urgencyScore}/100 (${(weights.urgency * 100)}% weight) = ${Math.round(urgencyScore * weights.urgency)} points`);\n  finalReasons.push(`• Property Characteristics: ${propertyScore}/100 (${(weights.property * 100)}% weight) = ${Math.round(propertyScore * weights.property)} points`);\n  finalReasons.push(`• Financial Capacity: ${financialScore}/100 (${(weights.financial * 100)}% weight) = ${Math.round(financialScore * weights.financial)} points`);\n  finalReasons.push(`• Demographic Fit: ${demographicScore}/100 (${(weights.demographic * 100)}% weight) = ${Math.round(demographicScore * weights.demographic)} points`);\n  finalReasons.push(`• Market Conditions: ${marketScore}/100 (${(weights.market * 100)}% weight) = ${Math.round(marketScore * weights.market)} points`);\n  finalReasons.push('');\n  \n  // Top contributing factors\n  const moduleScores = [\n    { name: 'Urgency/Timing', score: urgencyScore, weight: weights.urgency },\n    { name: 'Property Characteristics', score: propertyScore, weight: weights.property },\n    { name: 'Financial Capacity', score: financialScore, weight: weights.financial },\n    { name: 'Demographic Fit', score: demographicScore, weight: weights.demographic },\n    { name: 'Market Conditions', score: marketScore, weight: weights.market }\n  ];\n  \n  // Sort by weighted contribution\n  moduleScores.sort((a, b) => (b.score * b.weight) - (a.score * a.weight));\n  \n  finalReasons.push('TOP CONTRIBUTING FACTORS:');\n  moduleScores.forEach((module, index) => {\n    const contribution = Math.round(module.score * module.weight);\n    finalReasons.push(`${index + 1}. ${module.name}: ${contribution} points (${module.score}/100 score)`);\n  });\n  finalReasons.push('');\n  \n  // Spending likelihood analysis\n  finalReasons.push('SPENDING LIKELIHOOD ANALYSIS:');\n  if (finalScore >= 85) {\n    finalReasons.push('🔥 ULTRA-HIGH: This lead is extremely likely to spend $10k-50k+ on home improvements');\n    finalReasons.push('   • Contact within 24 hours');\n    finalReasons.push('   • Offer premium services');\n    finalReasons.push('   • Expect high-value projects');\n  } else if (finalScore >= 75) {\n    finalReasons.push('🔥 HIGH: This lead is very likely to spend $5k-25k on home improvements');\n    finalReasons.push('   • Contact within 48 hours');\n    finalReasons.push('   • Offer comprehensive services');\n    finalReasons.push('   • Expect medium to high-value projects');\n  } else if (finalScore >= 60) {\n    finalReasons.push('🔥 MODERATE: This lead may spend $2k-15k on home improvements');\n    finalReasons.push('   • Contact within 1 week');\n    finalReasons.push('   • Offer standard services');\n    finalReasons.push('   • Expect medium-value projects');\n  } else if (finalScore >= 40) {\n    finalReasons.push('🔥 LOW: This lead may spend $500-5k on home improvements');\n    finalReasons.push('   • Contact within 2 weeks');\n    finalReasons.push('   • Offer basic services');\n    finalReasons.push('   • Expect low to medium-value projects');\n  } else {\n    finalReasons.push('🔥 MINIMAL: This lead is unlikely to spend significant amounts');\n    finalReasons.push('   • Contact when time permits');\n    finalReasons.push('   • Offer basic services only');\n    finalReasons.push('   • Expect low-value projects');\n  }\n  \n  // Learning data structure for System 3 optimization\n  const learningData = {\n    timestamp: new Date().toISOString(),\n    property_id: $json.property_id || 'unknown',\n    address: $json.address || 'unknown',\n    final_score: finalScore,\n    tier: tier,\n    module_scores: {\n      urgency: urgencyScore,\n      property: propertyScore,\n      financial: financialScore,\n      demographic: demographicScore,\n      market: marketScore\n    },\n    module_weights: weights,\n    weighted_contributions: {\n      urgency: Math.round(urgencyScore * weights.urgency),\n      property: Math.round(propertyScore * weights.property),\n      financial: Math.round(financialScore * weights.financial),\n      demographic: Math.round(demographicScore * weights.demographic),\n      market: Math.round(marketScore * weights.market)\n    },\n    data_quality: {\n      urgency_data_complete: ($json.urgency_reasons && $json.urgency_reasons.length > 0),\n      property_data_complete: ($json.property_reasons && $json.property_reasons.length > 0),\n      financial_data_complete: ($json.financial_reasons && $json.financial_reasons.length > 0),\n      demographic_data_complete: ($json.demographic_reasons && $json.demographic_reasons.length > 0),\n      market_data_complete: ($json.market_reasons && $json.market_reasons.length > 0)\n    }\n  };\n  \n  // Return comprehensive result\n  return [{\n    json: {\n      ...$json, // Preserve all original data and module scores\n      \n      // Final scoring results\n      final_score: finalScore,\n      tier: tier,\n      tier_description: tierDescription,\n      final_reasons: finalReasons,\n      \n      // Comprehensive breakdown\n      final_breakdown: {\n        urgency_contribution: Math.round(urgencyScore * weights.urgency),\n        property_contribution: Math.round(propertyScore * weights.property),\n        financial_contribution: Math.round(financialScore * weights.financial),\n        demographic_contribution: Math.round(demographicScore * weights.demographic),\n        market_contribution: Math.round(marketScore * weights.market),\n        total_weighted_score: finalScore,\n        weights_used: weights\n      },\n      \n      // Learning data for System 3\n      learning_data: learningData,\n      \n      // Customer tracking fields\n      customer_wants: [], // To be filled by sales team\n      actual_spending: null, // To be filled after conversion\n      conversion_date: null, // To be filled after conversion\n      project_value: null, // To be filled after conversion\n      services_purchased: [], // To be filled after conversion\n      \n      // System 3 optimization fields\n      prediction_accuracy: null, // To be calculated by System 3\n      weight_optimization: null, // To be calculated by System 3\n      model_improvement: null // To be calculated by System 3\n    }\n  }];\n  \n} catch (error) {\n  // Error handling - return safe defaults\n  console.error('Error in Universal Final Scoring:', error);\n  \n  return [{\n    json: {\n      ...$json, // Preserve original data\n      final_score: 30, // Safe default score\n      tier: 'COLD',\n      tier_description: 'ERROR IN CALCULATION - LOW PRIORITY',\n      final_reasons: [\n        \"Error in final scoring calculation: +30 points (default)\",\n        \"Check data quality and try again\",\n        error.message\n      ],\n      final_breakdown: {\n        urgency_contribution: 0,\n        property_contribution: 0,\n        financial_contribution: 0,\n        demographic_contribution: 0,\n        market_contribution: 0,\n        total_weighted_score: 30,\n        weights_used: { urgency: 0.25, property: 0.20, financial: 0.25, demographic: 0.20, market: 0.10 }\n      },\n      learning_data: {\n        timestamp: new Date().toISOString(),\n        error: error.message,\n        final_score: 30,\n        tier: 'COLD'\n      },\n      error: error.message\n    }\n  }];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4848,
+        992
+      ],
+      "id": "a2b11da2-8be4-432c-858d-3254b581a6e7",
+      "name": "Calculate Final Score & Tier1"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1f-vVzZ4vxpOYEBPGWtVIIir9jqPrxJ5xqCVkuSmmmhw",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "contact_name",
+              "displayName": "contact_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "zip_code",
+              "displayName": "zip_code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "property_value",
+              "displayName": "property_value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "purchase_price",
+              "displayName": "purchase_price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "market_value",
+              "displayName": "market_value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "year_built",
+              "displayName": "year_built",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "building_sqft",
+              "displayName": "building_sqft",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lot_size_sqft",
+              "displayName": "lot_size_sqft",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lot_size_acres",
+              "displayName": "lot_size_acres",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bedrooms",
+              "displayName": "bedrooms",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bathrooms",
+              "displayName": "bathrooms",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "property_type",
+              "displayName": "property_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "days_since_purchase",
+              "displayName": "days_since_purchase",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "mortgage_amount",
+              "displayName": "mortgage_amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "property_tax_trend",
+              "displayName": "property_tax_trend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "estimated_income",
+              "displayName": "estimated_income",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "family_size",
+              "displayName": "family_size",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "school_rating",
+              "displayName": "school_rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "neighborhood_type",
+              "displayName": "neighborhood_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "neighborhood_value_trend",
+              "displayName": "neighborhood_value_trend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "neighborhood_median_income",
+              "displayName": "neighborhood_median_income",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "competitor_count",
+              "displayName": "competitor_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "population_density",
+              "displayName": "population_density",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "market_growth_rate",
+              "displayName": "market_growth_rate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "unemployment_rate",
+              "displayName": "unemployment_rate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "income_trend",
+              "displayName": "income_trend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "market_maturity",
+              "displayName": "market_maturity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "has_pool",
+              "displayName": "has_pool",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "has_deck",
+              "displayName": "has_deck",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "has_basement",
+              "displayName": "has_basement",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "has_hoa",
+              "displayName": "has_hoa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "num_garages",
+              "displayName": "num_garages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "days_since_permit",
+              "displayName": "days_since_permit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "days_since_violation",
+              "displayName": "days_since_violation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "business_owner",
+              "displayName": "business_owner",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "urgency_score",
+              "displayName": "urgency_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "property_score",
+              "displayName": "property_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "financial_score",
+              "displayName": "financial_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "demographic_score",
+              "displayName": "demographic_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "market_score",
+              "displayName": "market_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "final_score",
+              "displayName": "final_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tier",
+              "displayName": "tier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lead_value",
+              "displayName": "lead_value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "urgency_breakdown",
+              "displayName": "urgency_breakdown",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "property_breakdown",
+              "displayName": "property_breakdown",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "financial_breakdown",
+              "displayName": "financial_breakdown",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "demographic_breakdown",
+              "displayName": "demographic_breakdown",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "market_breakdown",
+              "displayName": "market_breakdown",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "scoring_breakdown",
+              "displayName": "scoring_breakdown",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "urgency_reason",
+              "displayName": "urgency_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "property_reason",
+              "displayName": "property_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "financial_reason",
+              "displayName": "financial_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "demographic_reason",
+              "displayName": "demographic_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "market_reasons",
+              "displayName": "market_reasons",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "final_reasons",
+              "displayName": "final_reasons",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "key_factors",
+              "displayName": "key_factors",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "service_type",
+              "displayName": "service_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "customer_wants",
+              "displayName": "customer_wants",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "actual_spending",
+              "displayName": "actual_spending",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "conversion_date",
+              "displayName": "conversion_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "project_value",
+              "displayName": "project_value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "services_purchased",
+              "displayName": "services_purchased",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "prediction_accuracy",
+              "displayName": "prediction_accuracy",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "weight_optimization",
+              "displayName": "weight_optimization",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "model_improvement",
+              "displayName": "model_improvement",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "processing_timestamp",
+              "displayName": "processing_timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "test_lead_type",
+              "displayName": "test_lead_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "has_urgency_score",
+              "displayName": "has_urgency_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "has_property_score",
+              "displayName": "has_property_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "has_financial_score",
+              "displayName": "has_financial_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "has_demographic_score",
+              "displayName": "has_demographic_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "has_market_score",
+              "displayName": "has_market_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "has_final_score",
+              "displayName": "has_final_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tier_description",
+              "displayName": "tier_description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "calculation_log",
+              "displayName": "calculation_log",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "validation_metadata",
+              "displayName": "validation_metadata",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "learning_data",
+              "displayName": "learning_data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "zip",
+              "displayName": "zip",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "urgency_reasons",
+              "displayName": "urgency_reasons",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "property_reasons",
+              "displayName": "property_reasons",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "financial_reasons",
+              "displayName": "financial_reasons",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "demographic_reasons",
+              "displayName": "demographic_reasons",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "final_breakdown",
+              "displayName": "final_breakdown",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "City",
+              "displayName": "City",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "State",
+              "displayName": "State",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Zip",
+              "displayName": "Zip",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "County",
+              "displayName": "County",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Living Square Feet",
+              "displayName": "Living Square Feet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Year Built",
+              "displayName": "Year Built",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Lot (Acres)",
+              "displayName": "Lot (Acres)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Lot (Square Feet)",
+              "displayName": "Lot (Square Feet)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Land Use",
+              "displayName": "Land Use",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Property Type",
+              "displayName": "Property Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Property Use",
+              "displayName": "Property Use",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Subdivision",
+              "displayName": "Subdivision",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "APN",
+              "displayName": "APN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Legal Description",
+              "displayName": "Legal Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Units Count",
+              "displayName": "Units Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Bedrooms",
+              "displayName": "Bedrooms",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Bathrooms",
+              "displayName": "Bathrooms",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "# of Stories",
+              "displayName": "# of Stories",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Garage Type",
+              "displayName": "Garage Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Garage Square Feet",
+              "displayName": "Garage Square Feet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Air Conditioning Type",
+              "displayName": "Air Conditioning Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "# of Fireplaces",
+              "displayName": "# of Fireplaces",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Owner 1 Last Name",
+              "displayName": "Owner 1 Last Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Owner Mailing Address",
+              "displayName": "Owner Mailing Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Owner Mailing City",
+              "displayName": "Owner Mailing City",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Owner Mailing State",
+              "displayName": "Owner Mailing State",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Owner Mailing Zip",
+              "displayName": "Owner Mailing Zip",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Ownership Length (Months)",
+              "displayName": "Ownership Length (Months)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Owner Type",
+              "displayName": "Owner Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Last Sale Date",
+              "displayName": "Last Sale Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Last Sale Amount",
+              "displayName": "Last Sale Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Estimated Value",
+              "displayName": "Estimated Value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Estimated Equity",
+              "displayName": "Estimated Equity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Estimated Equity Percent",
+              "displayName": "Estimated Equity Percent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Tax Amount",
+              "displayName": "Tax Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Assessment Year",
+              "displayName": "Assessment Year",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Assessed Total Value",
+              "displayName": "Assessed Total Value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Assessed Land Value",
+              "displayName": "Assessed Land Value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Assessed Improvement Value",
+              "displayName": "Assessed Improvement Value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Assessed Improvement Percentage",
+              "displayName": "Assessed Improvement Percentage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Market Value",
+              "displayName": "Market Value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Market Land Value",
+              "displayName": "Market Land Value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Market Improvement Value",
+              "displayName": "Market Improvement Value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Market Improvement Percentage",
+              "displayName": "Market Improvement Percentage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        5056,
+        992
+      ],
+      "id": "7cfb01b4-48e0-4dd2-9fb2-eb0c4ffd24a1",
+      "name": "HOT LEAD FINDER Output1",
+      "credentials": {
+        "googleApi": {
+          "id": "lwvYSy6SlwISaJkU",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3000/api/leads",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"ownerName\": \"John Smith\",\n  \"address\": \"123 Oak Street, Chicago, IL 60614\",\n  \"score\": 100,\n  \"tier\": 1,\n  \"lastSaleDate\": \"2019\",\n  \"lastSalePrice\": 750000,\n  \"propertyAge\": 45,\n  \"lotSize\": 0.3,\n  \"bedrooms\": 4,\n  \"bathrooms\": 0,\n  \"squareFeet\": 3500,\n  \"jobType\": \"Single Family\",\n  \"urgencyScore\": 100\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5504,
+        848
+      ],
+      "id": "8ef3b679-2c8c-4a93-a46a-a3da2fc397f3",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Limit to first 10 records for testing\nconst limitedItems = $input.all().slice(0, 10);\nreturn limitedItems.map(item => item.json);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3408,
+        896
+      ],
+      "id": "2ceefc57-b6a2-4ce6-b010-13d10d1da9e4",
+      "name": "Item Lists (LIMIT 10)"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Item Lists (LIMIT 10)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Urgency Score1": {
+      "main": [
+        [
+          {
+            "node": "Calculate property data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate property data1": {
+      "main": [
+        []
+      ]
+    },
+    "Calculate Financial Score1": {
+      "main": [
+        [
+          {
+            "node": "Calculate Demographic Score1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Demographic Score1": {
+      "main": [
+        [
+          {
+            "node": "Calculate Market Score1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Market Score1": {
+      "main": [
+        [
+          {
+            "node": "Calculate Final Score & Tier1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Final Score & Tier1": {
+      "main": [
+        [
+          {
+            "node": "HOT LEAD FINDER Output1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7e127f57-75e9-4bc9-8734-308f582232b1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bb818a3ddb49a15688a5bccaa0cfb65b2b5b2478438e344bd15c8c8ca9e9f9ce"
+  },
+  "id": "TB1Tidcm7YwODyIP",
+  "tags": []
+}
