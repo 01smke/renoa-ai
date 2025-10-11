@@ -1,0 +1,66 @@
+{
+  "name": "Simple Test - Timing Module",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Load single test property\nreturn [{\n  json: {\n    \"address\": \"123 Oak Street, Chicago, IL 60614\",\n    \"city\": \"Chicago\",\n    \"state\": \"IL\",\n    \"zip\": \"60614\",\n    \"contact_name\": \"John Smith\",\n    \"phone\": \"312-555-0123\",\n    \"email\": \"john.smith@email.com\",\n    \"property_value\": 750000,\n    \"year_built\": 2019,\n    \"lot_size_acres\": 0.3,\n    \"building_sqft\": 3500,\n    \"bedrooms\": 4,\n    \"property_type\": \"Single Family\",\n    \"days_since_purchase\": 45,\n    \"days_since_permit\": 15,\n    \"days_since_violation\": null,\n    \"has_pool\": true,\n    \"has_hoa\": true,\n    \"family_size\": 4,\n    \"business_owner\": false,\n    \"estimated_income\": 150000,\n    \"school_rating\": 9,\n    \"neighborhood_type\": \"suburban\",\n    \"property_tax_trend\": \"increasing\",\n    \"neighborhood_value_trend\": \"increasing\"\n  }\n}];"
+      },
+      "id": "single-property",
+      "name": "Single Test Property",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// MODULE 1: URGENCY/TIMING SCORE CALCULATION\ntry {\n  let urgencyScore = 0;\n  let urgencyReasons = [];\n  let maxScore = 100;\n  \n  const currentDate = new Date();\n  const currentMonth = currentDate.getMonth() + 1;\n  \n  // 1. NEW HOMEOWNER STATUS SCORING\n  let newHomeownerScore = 0;\n  if ($json.days_since_purchase !== undefined && $json.days_since_purchase !== null) {\n    const daysSincePurchase = parseInt($json.days_since_purchase);\n    \n    if (daysSincePurchase <= 90) {\n      newHomeownerScore = 100;\n      urgencyReasons.push(\"New homeowner (≤90 days): +100 points\");\n    } else if (daysSincePurchase <= 180) {\n      newHomeownerScore = 70;\n      urgencyReasons.push(\"Recent homeowner (91-180 days): +70 points\");\n    } else if (daysSincePurchase <= 365) {\n      newHomeownerScore = 40;\n      urgencyReasons.push(\"Moderate homeowner (181-365 days): +40 points\");\n    } else {\n      newHomeownerScore = 20;\n      urgencyReasons.push(\"Established homeowner (>365 days): +20 points\");\n    }\n  } else {\n    newHomeownerScore = 10;\n    urgencyReasons.push(\"Unknown homeowner status: +10 points (default)\");\n  }\n  \n  // 2. SEASONAL TIMING SCORING\n  let seasonalBonus = 0;\n  const serviceType = 'landscaping'; // Default for now\n  \n  if (serviceType === 'landscaping') {\n    if ([3, 4, 5].includes(currentMonth)) {\n      seasonalBonus = 25;\n      urgencyReasons.push(\"Spring peak season for landscaping: +25 points\");\n    } else if ([9, 10].includes(currentMonth)) {\n      seasonalBonus = 15;\n      urgencyReasons.push(\"Fall shoulder season for landscaping: +15 points\");\n    } else {\n      seasonalBonus = 5;\n      urgencyReasons.push(\"Off-season for landscaping: +5 points\");\n    }\n  }\n  \n  // 3. RECENT PERMITS SCORING\n  let permitScore = 0;\n  if ($json.days_since_permit !== undefined && $json.days_since_permit !== null) {\n    const daysSincePermit = parseInt($json.days_since_permit);\n    \n    if (daysSincePermit <= 30) {\n      permitScore = 90;\n      urgencyReasons.push(\"Recent permit (≤30 days): +90 points\");\n    } else if (daysSincePermit <= 90) {\n      permitScore = 60;\n      urgencyReasons.push(\"Moderate permit age (31-90 days): +60 points\");\n    } else if (daysSincePermit <= 180) {\n      permitScore = 30;\n      urgencyReasons.push(\"Older permit (91-180 days): +30 points\");\n    } else {\n      permitScore = 0;\n      urgencyReasons.push(\"Old permit (>180 days): +0 points\");\n    }\n  } else {\n    urgencyReasons.push(\"No permit data available: +0 points\");\n  }\n  \n  // 4. CODE VIOLATIONS SCORING\n  let violationScore = 0;\n  if ($json.days_since_violation !== undefined && $json.days_since_violation !== null) {\n    const daysSinceViolation = parseInt($json.days_since_violation);\n    \n    if (daysSinceViolation <= 60) {\n      violationScore = 85;\n      urgencyReasons.push(\"Recent violation (≤60 days): +85 points\");\n    } else if (daysSinceViolation <= 180) {\n      violationScore = 40;\n      urgencyReasons.push(\"Moderate violation age (61-180 days): +40 points\");\n    } else {\n      violationScore = 0;\n      urgencyReasons.push(\"Old violation (>180 days): +0 points\");\n    }\n  } else {\n    urgencyReasons.push(\"No violation data available: +0 points\");\n  }\n  \n  // 5. CALCULATE FINAL TIMING SCORE\n  urgencyScore = newHomeownerScore + seasonalBonus + permitScore + violationScore;\n  urgencyScore = Math.min(urgencyScore, maxScore);\n  urgencyScore = Math.max(urgencyScore, 0);\n  \n  urgencyReasons.push(`FINAL TIMING SCORE: ${urgencyScore}/100`);\n  \n  return [{\n    json: {\n      ...$json,\n      urgency_score: urgencyScore,\n      urgency_reasons: urgencyReasons,\n      timing_breakdown: {\n        new_homeowner_score: newHomeownerScore,\n        seasonal_bonus: seasonalBonus,\n        permit_score: permitScore,\n        violation_score: violationScore\n      },\n      current_month: currentMonth\n    }\n  }];\n  \n} catch (error) {\n  return [{\n    json: {\n      ...$json,\n      urgency_score: 20,\n      urgency_reasons: [\"Error in timing calculation: +20 points (default)\"],\n      error: error.message\n    }\n  }];\n}"
+      },
+      "id": "timing-module",
+      "name": "Calculate Urgency Score",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [680, 300]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Single Test Property",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Single Test Property": {
+      "main": [
+        [
+          {
+            "node": "Calculate Urgency Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-01-03T12:00:00.000Z",
+  "versionId": "1"
+}

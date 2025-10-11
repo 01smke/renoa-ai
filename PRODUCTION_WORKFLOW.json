@@ -1,0 +1,471 @@
+{
+  "name": "Multi-Service Lead Generation - PRODUCTION",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "daily-trigger",
+      "name": "Daily Lead Generation",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "rentcastApi",
+        "url": "={{$env.RENTCAST_API_URL}}/properties",
+        "options": {
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "limit",
+                "value": "100"
+              },
+              {
+                "name": "minValue",
+                "value": "150000"
+              }
+            ]
+          }
+        }
+      },
+      "id": "fetch-properties",
+      "name": "Fetch Properties (RentCast)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "id": "process-batches",
+      "name": "Process Properties in Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// PASTE TIMING MODULE CODE HERE"
+      },
+      "id": "timing-module",
+      "name": "Calculate Urgency Score",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// PASTE PROPERTY MODULE CODE HERE"
+      },
+      "id": "property-module",
+      "name": "Calculate Property Score",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// PASTE FINANCIAL MODULE CODE HERE"
+      },
+      "id": "financial-module",
+      "name": "Calculate Financial Score",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// PASTE DEMOGRAPHIC MODULE CODE HERE"
+      },
+      "id": "demographic-module",
+      "name": "Calculate Demographic Score",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// PASTE MARKET MODULE CODE HERE"
+      },
+      "id": "market-module",
+      "name": "Calculate Market Score",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1780, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// PASTE SERVICE CLASSIFICATION CODE HERE"
+      },
+      "id": "service-classification",
+      "name": "Determine Service Type",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// PASTE FINAL SCORING CODE HERE"
+      },
+      "id": "final-scoring",
+      "name": "Calculate Final Score & Tier",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [2220, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition1",
+              "leftValue": "={{ $json.tier }}",
+              "rightValue": "Filtered",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "filter-qualified-leads",
+      "name": "Keep Only Qualified Leads",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2440, 300]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "operation": "equals",
+              "value1": "={{ $json.primary_service }}",
+              "value2": "landscaping"
+            },
+            {
+              "operation": "equals",
+              "value1": "={{ $json.primary_service }}",
+              "value2": "roofing"
+            },
+            {
+              "operation": "equals",
+              "value1": "={{ $json.primary_service }}",
+              "value2": "remodeling"
+            },
+            {
+              "operation": "equals",
+              "value1": "={{ $json.primary_service }}",
+              "value2": "flooring"
+            },
+            {
+              "operation": "equals",
+              "value1": "={{ $json.primary_service }}",
+              "value2": "hvac"
+            },
+            {
+              "operation": "equals",
+              "value1": "={{ $json.primary_service }}",
+              "value2": "windows"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "route-by-service",
+      "name": "Route to Service Sheets",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [2660, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "appendOrUpdate",
+        "documentId": "={{$env.LANDSCAPING_SHEET_ID}}",
+        "sheetName": "Landscaping Leads",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Lead ID": "={{`LEAD-${$json.property_id || $json.address.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase()}`}}",
+            "Date Generated": "={{new Date().toISOString().split('T')[0]}}",
+            "Address": "={{$json.address}}",
+            "City": "={{$json.city}}",
+            "State": "={{$json.state}}",
+            "Zip": "={{$json.zip}}",
+            "Property Value": "={{$json.property_value}}",
+            "Property Age": "={{new Date().getFullYear() - ($json.year_built || new Date().getFullYear())}}",
+            "Lot Size": "={{$json.lot_size_acres}}",
+            "Contact Name": "={{$json.contact_name || ''}}",
+            "Phone": "={{$json.phone || ''}}",
+            "Email": "={{$json.email || ''}}",
+            "Primary Service": "={{$json.primary_service}}",
+            "Final Score": "={{$json.final_score}}",
+            "Tier": "={{$json.tier}}",
+            "Lead Value": "={{$json.lead_value}}",
+            "Key Factors": "={{$json.key_factors ? $json.key_factors.join(', ') : ''}}"
+          }
+        },
+        "options": {}
+      },
+      "id": "landscaping-sheet",
+      "name": "Landscaping Leads Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [2880, 200]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "appendOrUpdate",
+        "documentId": "={{$env.ROOFING_SHEET_ID}}",
+        "sheetName": "Roofing Leads",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Lead ID": "={{`LEAD-${$json.property_id || $json.address.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase()}`}}",
+            "Date Generated": "={{new Date().toISOString().split('T')[0]}}",
+            "Address": "={{$json.address}}",
+            "City": "={{$json.city}}",
+            "State": "={{$json.state}}",
+            "Zip": "={{$json.zip}}",
+            "Property Value": "={{$json.property_value}}",
+            "Property Age": "={{new Date().getFullYear() - ($json.year_built || new Date().getFullYear())}}",
+            "Lot Size": "={{$json.lot_size_acres}}",
+            "Contact Name": "={{$json.contact_name || ''}}",
+            "Phone": "={{$json.phone || ''}}",
+            "Email": "={{$json.email || ''}}",
+            "Primary Service": "={{$json.primary_service}}",
+            "Final Score": "={{$json.final_score}}",
+            "Tier": "={{$json.tier}}",
+            "Lead Value": "={{$json.lead_value}}",
+            "Key Factors": "={{$json.key_factors ? $json.key_factors.join(', ') : ''}}"
+          }
+        },
+        "options": {}
+      },
+      "id": "roofing-sheet",
+      "name": "Roofing Leads Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [2880, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "sheet",
+        "operation": "appendOrUpdate",
+        "documentId": "={{$env.REMODELING_SHEET_ID}}",
+        "sheetName": "Remodeling Leads",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Lead ID": "={{`LEAD-${$json.property_id || $json.address.replace(/[^a-zA-Z0-9]/g, '').substring(0, 8).toUpperCase()}`}}",
+            "Date Generated": "={{new Date().toISOString().split('T')[0]}}",
+            "Address": "={{$json.address}}",
+            "City": "={{$json.city}}",
+            "State": "={{$json.state}}",
+            "Zip": "={{$json.zip}}",
+            "Property Value": "={{$json.property_value}}",
+            "Property Age": "={{new Date().getFullYear() - ($json.year_built || new Date().getFullYear())}}",
+            "Lot Size": "={{$json.lot_size_acres}}",
+            "Contact Name": "={{$json.contact_name || ''}}",
+            "Phone": "={{$json.phone || ''}}",
+            "Email": "={{$json.email || ''}}",
+            "Primary Service": "={{$json.primary_service}}",
+            "Final Score": "={{$json.final_score}}",
+            "Tier": "={{$json.tier}}",
+            "Lead Value": "={{$json.lead_value}}",
+            "Key Factors": "={{$json.key_factors ? $json.key_factors.join(', ') : ''}}"
+          }
+        },
+        "options": {}
+      },
+      "id": "remodeling-sheet",
+      "name": "Remodeling Leads Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [2880, 400]
+    }
+  ],
+  "connections": {
+    "Daily Lead Generation": {
+      "main": [
+        [
+          {
+            "node": "Fetch Properties (RentCast)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Properties (RentCast)": {
+      "main": [
+        [
+          {
+            "node": "Process Properties in Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Properties in Batches": {
+      "main": [
+        [
+          {
+            "node": "Calculate Urgency Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Urgency Score": {
+      "main": [
+        [
+          {
+            "node": "Calculate Property Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Property Score": {
+      "main": [
+        [
+          {
+            "node": "Calculate Financial Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Financial Score": {
+      "main": [
+        [
+          {
+            "node": "Calculate Demographic Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Demographic Score": {
+      "main": [
+        [
+          {
+            "node": "Calculate Market Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Market Score": {
+      "main": [
+        [
+          {
+            "node": "Determine Service Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Determine Service Type": {
+      "main": [
+        [
+          {
+            "node": "Calculate Final Score & Tier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Final Score & Tier": {
+      "main": [
+        [
+          {
+            "node": "Keep Only Qualified Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep Only Qualified Leads": {
+      "main": [
+        [
+          {
+            "node": "Route to Service Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route to Service Sheets": {
+      "main": [
+        [
+          {
+            "node": "Landscaping Leads Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Roofing Leads Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Remodeling Leads Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-01-03T12:00:00.000Z",
+  "versionId": "1"
+}
+

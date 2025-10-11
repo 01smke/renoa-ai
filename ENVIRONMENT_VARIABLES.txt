@@ -1,0 +1,40 @@
+N8N ENVIRONMENT VARIABLES SETUP
+
+Copy and paste these into your N8N environment variables:
+
+# GOOGLE SHEETS IDs (Create 6 sheets and get their IDs)
+LANDSCAPING_SHEET_ID=your_landscaping_sheet_id_here
+ROOFING_SHEET_ID=your_roofing_sheet_id_here
+REMODELING_SHEET_ID=your_remodeling_sheet_id_here
+FLOORING_SHEET_ID=your_flooring_sheet_id_here
+HVAC_SHEET_ID=your_hvac_sheet_id_here
+WINDOWS_SHEET_ID=your_windows_sheet_id_here
+
+# FREE API CONFIGURATION
+# RentCast API (Primary data source - $50-200/month)
+RENTCAST_API_KEY=your_rentcast_api_key_here
+RENTCAST_API_URL=https://api.rentcast.io
+
+# Census API (FREE)
+CENSUS_API_KEY=your_census_api_key_here
+
+# Google Places API (FREE tier: 2,500 requests/day)
+GOOGLE_PLACES_API_KEY=your_google_places_api_key_here
+
+# Optional: BatchData for contact enrichment ($0.025 per lookup)
+BATCHDATA_API_KEY=your_batchdata_api_key_here
+
+# WEBHOOK URL (Optional - for lead notifications)
+WEBHOOK_URL=https://webhook.site/your-custom-endpoint
+
+INSTRUCTIONS:
+1. Replace all "your_*_here" values with your actual API keys and sheet IDs
+2. Get Google Sheets IDs from the URL (between /d/ and /edit)
+3. Sign up for free APIs: Census API, Google Places API
+4. Consider RentCast for property data (main data source)
+5. Test each API key individually before running the workflow
+
+FREE API SIGNUP LINKS:
+- Census API: https://api.census.gov/data/key_signup.html
+- Google Places API: https://console.cloud.google.com/apis/credentials
+- RentCast: https://rentcast.io/ (main data source)

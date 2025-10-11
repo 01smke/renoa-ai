@@ -1,0 +1,48 @@
+GOOGLE SHEETS IDS - Multi-Service Lead Generation Tool
+
+Create 6 Google Sheets (one for each service type):
+
+LANDSCAPING LEADS:
+- Create sheet: "Landscaping Leads"
+- Add headers: Lead ID, Date, Address, City, State, Zip, Property Value, Property Age, Lot Size, Contact Name, Phone, Email, Primary Service, All Services, Final Score, Tier, Urgency Score, Property Score, Financial Score, Demographic Score, Market Score, Key Factors, Days Since Purchase, Estimated Income
+- Copy Sheet ID and add to N8N env vars as: LANDSCAPING_SHEET_ID
+
+ROOFING LEADS:
+- Create sheet: "Roofing Leads"
+- Same headers as above
+- Copy Sheet ID and add to N8N env vars as: ROOFING_SHEET_ID
+
+REMODELING LEADS:
+- Create sheet: "Remodeling Leads"
+- Same headers as above
+- Copy Sheet ID and add to N8N env vars as: REMODELING_SHEET_ID
+
+FLOORING LEADS:
+- Create sheet: "Flooring Leads"
+- Same headers as above
+- Copy Sheet ID and add to N8N env vars as: FLOORING_SHEET_ID
+
+HVAC LEADS:
+- Create sheet: "HVAC Leads"
+- Same headers as above
+- Copy Sheet ID and add to N8N env vars as: HVAC_SHEET_ID
+
+WINDOWS LEADS:
+- Create sheet: "Windows Leads"
+- Same headers as above
+- Copy Sheet ID and add to N8N env vars as: WINDOWS_SHEET_ID
+
+INSTRUCTIONS:
+1. Create each Google Sheet with the exact names above
+2. Add the column headers listed
+3. Get the Sheet ID from the URL (the long string between /d/ and /edit)
+4. Add each Sheet ID to your N8N environment variables
+5. Test the workflow to ensure leads are routing to the correct sheets
+
+EXAMPLE ENVIRONMENT VARIABLES:
+LANDSCAPING_SHEET_ID=1ABC123def456GHI789jkl012MNO345pqr678STU901vwx234
+ROOFING_SHEET_ID=2BCD234efg567HIJ890klm123NOP456qrs789TUV012wxy345
+REMODELING_SHEET_ID=3CDE345fgh678IJK901lmn234OPQ567rst890UVW123xyz456
+FLOORING_SHEET_ID=4DEF456ghi789JKL012mno345PQR678stu901VWX234yza567
+HVAC_SHEET_ID=5EFG567hij890KLM123nop456QRS789tuv012WXY345zab678
+WINDOWS_SHEET_ID=6FGH678ijk901LMN234opq567RST890uvw123XYZ456abc789

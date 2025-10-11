@@ -1,0 +1,11 @@
+id,Address,City,State,Zip,Living Square Feet,Year Built,Lot (Acres),Property Type,Bedrooms,Bathrooms,Owner 1 Last Name,Last Sale Date,Last Sale Amount,Estimated Value,Has Pool,Has HOA,Has Deck,Has Basement,Garages,Estimated Income,School Rating,Neighborhood Type,Property Tax Trend,Neighborhood Value Trend,Competitor Count,Population Density,Market Growth Rate,Unemployment Rate,Income Trend,Market Maturity
+1,"123 Oak Street",Chicago,IL,60614,3500,2019,0.3,Single Family,4,3,Smith,2024-08-15,750000,750000,true,true,true,false,2,150000,9,suburban,increasing,increasing,3,2500,8,4,increasing,mature
+2,"456 Maple Avenue",Chicago,IL,60610,2800,1995,0.2,Single Family,3,2,Johnson,2022-06-20,450000,450000,false,false,false,true,1,85000,7,urban,stable,stable,5,4000,5,5,stable,mature
+3,"789 Pine Street",Chicago,IL,60611,2200,2010,0.15,Townhouse,3,2,Davis,2024-03-10,320000,320000,false,true,false,false,1,95000,8,suburban,increasing,increasing,2,2000,12,3,increasing,growing
+4,"321 Elm Drive",Chicago,IL,60615,4500,1929,0.5,Single Family,5,4,Wilson,2024-01-05,650000,650000,true,true,true,true,3,180000,9,suburban,increasing,increasing,2,1500,15,3,increasing_fast,emerging
+5,"654 Cedar Lane",Chicago,IL,60612,1800,1985,0.25,Single Family,3,2,Brown,2023-11-15,380000,380000,false,false,true,false,2,75000,6,urban,stable,stable,6,3500,3,6,stable,mature
+6,"987 Birch Court",Chicago,IL,60613,3200,2005,0.4,Single Family,4,3,Miller,2024-07-30,520000,520000,true,false,true,true,2,120000,8,suburban,increasing,increasing,4,2200,7,4,increasing,mature
+7,"147 Spruce Way",Chicago,IL,60614,2500,1998,0.3,Single Family,3,2,Garcia,2023-09-12,420000,420000,false,true,false,false,1,90000,7,suburban,stable,increasing,3,1800,6,4,stable,mature
+8,"258 Ash Street",Chicago,IL,60610,1900,2015,0.2,Condo,2,2,Martinez,2024-05-18,290000,290000,false,true,false,false,1,65000,6,urban,stable,stable,8,4500,2,7,stable,mature
+9,"369 Willow Road",Chicago,IL,60611,4100,1975,0.6,Single Family,5,4,Anderson,2024-02-28,580000,580000,true,false,true,true,3,140000,8,suburban,increasing,increasing,1,1200,18,2,increasing_fast,growing
+10,"741 Poplar Avenue",Chicago,IL,60612,2100,2000,0.25,Single Family,3,2,Taylor,2023-12-03,350000,350000,false,false,false,true,2,80000,7,urban,stable,stable,5,3000,4,5,stable,mature

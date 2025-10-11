@@ -1,0 +1,113 @@
+{
+  "name": "Multi-Service Lead Generation Tool",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "daily-trigger",
+      "name": "Daily Lead Generation",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "rentcastApi",
+        "url": "={{$env.RENTCAST_API_URL}}/properties",
+        "options": {
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "limit",
+                "value": "100"
+              },
+              {
+                "name": "minValue",
+                "value": "150000"
+              }
+            ]
+          }
+        }
+      },
+      "id": "fetch-properties",
+      "name": "Fetch Properties (RentCast)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "id": "process-batches",
+      "name": "Process Properties in Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// MODULE 1: URGENCY/TIMING SCORE CALCULATION\n// Input: Property data object\n// Output: urgency_score (0-100) and urgency_reasons array\n\ntry {\n  // Initialize variables\n  let urgencyScore = 0;\n  let urgencyReasons = [];\n  let maxScore = 100;\n  \n  // Get current date for calculations\n  const currentDate = new Date();\n  const currentMonth = currentDate.getMonth() + 1;\n  const currentYear = currentDate.getFullYear();\n  \n  // 1. NEW HOMEOWNER STATUS SCORING\n  let newHomeownerScore = 0;\n  if ($json.days_since_purchase !== undefined && $json.days_since_purchase !== null) {\n    const daysSincePurchase = parseInt($json.days_since_purchase);\n    \n    if (daysSincePurchase <= 90) {\n      newHomeownerScore = 100;\n      urgencyReasons.push(\"New homeowner (≤90 days): +100 points\");\n    } else if (daysSincePurchase <= 180) {\n      newHomeownerScore = 70;\n      urgencyReasons.push(\"Recent homeowner (91-180 days): +70 points\");\n    } else if (daysSincePurchase <= 365) {\n      newHomeownerScore = 40;\n      urgencyReasons.push(\"Moderate homeowner (181-365 days): +40 points\");\n    } else {\n      newHomeownerScore = 20;\n      urgencyReasons.push(\"Established homeowner (>365 days): +20 points\");\n    }\n  } else {\n    // Handle missing data gracefully\n    newHomeownerScore = 10; // Default low score for unknown status\n    urgencyReasons.push(\"Unknown homeowner status: +10 points (default)\");\n  }\n  \n  // 2. SEASONAL TIMING SCORING\n  let seasonalBonus = 0;\n  \n  // Determine service type for seasonal scoring\n  const serviceType = $json.primary_service || 'landscaping';\n  \n  if (serviceType === 'landscaping') {\n    if ([3, 4, 5].includes(currentMonth)) {\n      seasonalBonus = 25;\n      urgencyReasons.push(\"Spring peak season for landscaping: +25 points\");\n    } else if ([9, 10].includes(currentMonth)) {\n      seasonalBonus = 15;\n      urgencyReasons.push(\"Fall shoulder season for landscaping: +15 points\");\n    } else {\n      seasonalBonus = 5;\n      urgencyReasons.push(\"Off-season for landscaping: +5 points\");\n    }\n  } else if (serviceType === 'roofing') {\n    if ([4, 5, 6, 7, 8, 9].includes(currentMonth)) {\n      seasonalBonus = 25;\n      urgencyReasons.push(\"Peak roofing season (warm months): +25 points\");\n    } else {\n      seasonalBonus = 10;\n      urgencyReasons.push(\"Off-season for roofing: +10 points\");\n    }\n  } else if (serviceType === 'hvac') {\n    if ([6, 7, 8, 12, 1, 2].includes(currentMonth)) {\n      seasonalBonus = 30;\n      urgencyReasons.push(\"Peak HVAC season (summer/winter): +30 points\");\n    } else {\n      seasonalBonus = 10;\n      urgencyReasons.push(\"Shoulder season for HVAC: +10 points\");\n    }\n  } else {\n    // Default for other services\n    seasonalBonus = 15;\n    urgencyReasons.push(\"Standard seasonal timing: +15 points\");\n  }\n  \n  // 3. RECENT PERMITS SCORING\n  let permitScore = 0;\n  if ($json.days_since_permit !== undefined && $json.days_since_permit !== null) {\n    const daysSincePermit = parseInt($json.days_since_permit);\n    \n    if (daysSincePermit <= 30) {\n      permitScore = 90;\n      urgencyReasons.push(\"Recent permit (≤30 days): +90 points\");\n    } else if (daysSincePermit <= 90) {\n      permitScore = 60;\n      urgencyReasons.push(\"Moderate permit age (31-90 days): +60 points\");\n    } else if (daysSincePermit <= 180) {\n      permitScore = 30;\n      urgencyReasons.push(\"Older permit (91-180 days): +30 points\");\n    } else {\n      permitScore = 0;\n      urgencyReasons.push(\"Old permit (>180 days): +0 points\");\n    }\n  } else {\n    // No permit data available\n    urgencyReasons.push(\"No permit data available: +0 points\");\n  }\n  \n  // 4. CODE VIOLATIONS SCORING\n  let violationScore = 0;\n  if ($json.days_since_violation !== undefined && $json.days_since_violation !== null) {\n    const daysSinceViolation = parseInt($json.days_since_violation);\n    \n    if (daysSinceViolation <= 60) {\n      violationScore = 85;\n      urgencyReasons.push(\"Recent violation (≤60 days): +85 points\");\n    } else if (daysSinceViolation <= 180) {\n      violationScore = 40;\n      urgencyReasons.push(\"Moderate violation age (61-180 days): +40 points\");\n    } else {\n      violationScore = 0;\n      urgencyReasons.push(\"Old violation (>180 days): +0 points\");\n    }\n  } else {\n    // No violation data available\n    urgencyReasons.push(\"No violation data available: +0 points\");\n  }\n  \n  // 5. CALCULATE FINAL TIMING SCORE\n  urgencyScore = newHomeownerScore + seasonalBonus + permitScore + violationScore;\n  \n  // Cap at maximum score\n  urgencyScore = Math.min(urgencyScore, maxScore);\n  \n  // Ensure minimum score of 0\n  urgencyScore = Math.max(urgencyScore, 0);\n  \n  // Add summary to reasons\n  urgencyReasons.push(`FINAL TIMING SCORE: ${urgencyScore}/100`);\n  \n  // Return the result\n  return [{\n    json: {\n      ...$json, // Preserve all original data\n      urgency_score: urgencyScore,\n      urgency_reasons: urgencyReasons,\n      timing_breakdown: {\n        new_homeowner_score: newHomeownerScore,\n        seasonal_bonus: seasonalBonus,\n        permit_score: permitScore,\n        violation_score: violationScore\n      }\n    }\n  }];\n  \n} catch (error) {\n  // Error handling - return safe defaults\n  console.error('Error in Timing Module:', error);\n  \n  return [{\n    json: {\n      ...$json, // Preserve original data\n      urgency_score: 20, // Safe default score\n      urgency_reasons: [\n        \"Error in timing calculation: +20 points (default)\",\n        \"Check data quality and try again\"\n      ],\n      timing_breakdown: {\n        new_homeowner_score: 10,\n        seasonal_bonus: 10,\n        permit_score: 0,\n        violation_score: 0\n      },\n      error: error.message\n    }\n  }];\n}"
+      },
+      "id": "timing-module",
+      "name": "Calculate Urgency Score",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Daily Lead Generation": {
+      "main": [
+        [
+          {
+            "node": "Fetch Properties (RentCast)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Properties (RentCast)": {
+      "main": [
+        [
+          {
+            "node": "Process Properties in Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Properties in Batches": {
+      "main": [
+        [
+          {
+            "node": "Calculate Urgency Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-01-03T12:00:00.000Z",
+  "versionId": "1"
+}
