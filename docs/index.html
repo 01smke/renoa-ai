@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional snow removal cost calculator for Edison Park, Chicago. Get instant pricing for residential snow removal services.">
+    <title>Snow Removal Cost Calculator - Edison Park, Chicago | Renoa</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 16px;
+            color: #333333;
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: linear-gradient(135deg, #C8D5B9 0%, #F5F1E8 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background Blobs */
+        .blob {
+            position: fixed;
+            background: rgba(26, 95, 79, 0.07);
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            left: -100px;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .blob-2 {
+            width: 350px;
+            height: 350px;
+            bottom: -100px;
+            right: -100px;
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        .blob-3 {
+            width: 300px;
+            height: 300px;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: float 30s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            33% {
+                transform: translate(30px, -30px);
+            }
+            66% {
+                transform: translate(-30px, 30px);
+            }
+        }
+
+        /* Container */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1A5F4F;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: #1A5F4F;
+            margin-bottom: 16px;
+            letter-spacing: -0.01em;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #333333;
+            opacity: 0.8;
+        }
+
+        /* Calculator Card */
+        .calculator-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1A5F4F;
+            margin-bottom: 30px;
+            letter-spacing: -0.01em;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #1A5F4F;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Custom Dropdown */
+        .custom-select {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-select select {
+            width: 100%;
+            height: 50px;
+            padding: 0 40px 0 16px;
+            font-size: 16px;
+            color: #333333;
+            background: white;
+            border: 2px solid rgba(26, 95, 79, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .custom-select::after {
+            content: '';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            border-right: 2px solid #1A5F4F;
+            border-bottom: 2px solid #1A5F4F;
+            transform: translateY(-60%) rotate(45deg);
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .custom-select select:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-color: rgba(26, 95, 79, 0.2);
+        }
+
+        .custom-select select:focus {
+            outline: none;
+            border-color: #1A5F4F;
+            box-shadow: 0 0 0 3px rgba(26, 95, 79, 0.1);
+        }
+
+        /* Button */
+        .btn-calculate {
+            width: 100%;
+            height: 50px;
+            background: #1A5F4F;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 6px 12px rgba(26, 95, 79, 0.3);
+        }
+
+        .btn-calculate:active {
+            transform: translateY(0) scale(0.99);
+        }
+
+        /* Result */
+        .result {
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #1A5F4F 0%, #2a8070 100%);
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+            position: relative;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .result-price {
+            font-size: 48px;
+            font-weight: 700;
+            color: white;
+            transition: filter 0.3s ease;
+        }
+
+        .result-price.blurred {
+            filter: blur(8px);
+        }
+
+        .result-frequency {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 5px;
+        }
+
+        /* Trust Badges */
+        .trust-badges {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #1A5F4F;
+            font-weight: 600;
+        }
+
+        .badge::before {
+            content: '✓';
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #1A5F4F;
+            color: white;
+            border-radius: 50%;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.4s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal h3 {
+            font-size: 28px;
+            color: #1A5F4F;
+            margin-bottom: 10px;
+        }
+
+        .modal p {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .modal-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .modal input[type="email"] {
+            width: 100%;
+            height: 50px;
+            padding: 0 16px;
+            font-size: 16px;
+            color: #333333;
+            background: white;
+            border: 2px solid rgba(26, 95, 79, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .modal input[type="email"]:focus {
+            outline: none;
+            border-color: #1A5F4F;
+            box-shadow: 0 0 0 3px rgba(26, 95, 79, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: #1A5F4F;
+        }
+
+        .checkbox-group label {
+            font-size: 13px;
+            color: #666;
+            font-weight: normal;
+            text-transform: none;
+            letter-spacing: normal;
+            cursor: pointer;
+        }
+
+        .btn-submit {
+            width: 100%;
+            height: 50px;
+            background: #1A5F4F;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(26, 95, 79, 0.3);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 20px;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .calculator-card {
+                padding: 30px 24px;
+            }
+
+            .result-price {
+                font-size: 36px;
+            }
+
+            .trust-badges {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .blob-1 {
+                width: 300px;
+                height: 300px;
+            }
+
+            .blob-2 {
+                width: 250px;
+                height: 250px;
+            }
+
+            .blob-3 {
+                width: 200px;
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 16px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .calculator-card {
+                padding: 24px 20px;
+            }
+
+            .result-price {
+                font-size: 28px;
+            }
+
+            .modal {
+                padding: 30px 20px;
+            }
+
+            .modal h3 {
+                font-size: 24px;
+            }
+
+            .custom-select select,
+            .btn-calculate,
+            .modal input[type="email"],
+            .btn-submit {
+                height: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background Blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="container">
+        <header>
+            <div class="logo">Renoa</div>
+            <h1>Snow Removal Cost Calculator</h1>
+            <p class="subtitle">Edison Park, Chicago</p>
+        </header>
+
+        <div class="calculator-card">
+            <h2>Get Your Instant Quote</h2>
+
+            <form id="calculatorForm">
+                <div class="form-group">
+                    <label for="propertySize">Property Size</label>
+                    <div class="custom-select">
+                        <select id="propertySize" required>
+                            <option value="">Select property size</option>
+                            <option value="small">Small (under 2,000 sq ft)</option>
+                            <option value="medium">Medium (2,000-4,000 sq ft)</option>
+                            <option value="large">Large (4,000+ sq ft)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="driveway">Driveway</label>
+                    <div class="custom-select">
+                        <select id="driveway" required>
+                            <option value="none">None</option>
+                            <option value="single">Single car (+$10)</option>
+                            <option value="double">Double car (+$15)</option>
+                            <option value="triple">Triple+ car (+$20)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="sidewalk">Sidewalk Length</label>
+                    <div class="custom-select">
+                        <select id="sidewalk" required>
+                            <option value="none">None</option>
+                            <option value="short">Short under 50ft (+$10)</option>
+                            <option value="medium">Medium 50-100ft (+$15)</option>
+                            <option value="long">Long 100ft+ (+$25)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="serviceType">Service Type</label>
+                    <div class="custom-select">
+                        <select id="serviceType" required>
+                            <option value="perVisit">Per Visit</option>
+                            <option value="monthly">Monthly Contract (8 visits/month, 15% discount)</option>
+                            <option value="seasonal">Seasonal Contract (Nov-Mar, 25% discount)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-calculate">Calculate Cost</button>
+            </form>
+
+            <div id="result" class="result">
+                <div class="result-label">Estimated Cost</div>
+                <div id="resultPrice" class="result-price">$0</div>
+                <div id="resultFrequency" class="result-frequency">per visit</div>
+            </div>
+
+            <div class="trust-badges">
+                <div class="badge">Licensed & Insured</div>
+                <div class="badge">Background Checked</div>
+                <div class="badge">Highly Rated</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Capture Modal -->
+    <div id="emailModal" class="modal-overlay">
+        <div class="modal">
+            <h3>Get Your Quote</h3>
+            <p>Enter your email to see your personalized pricing</p>
+
+            <form id="emailForm" class="modal-form">
+                <div class="form-group">
+                    <input
+                        type="email"
+                        id="userEmail"
+                        placeholder="your.email@example.com"
+                        required
+                        aria-label="Email address"
+                    >
+                </div>
+
+                <div class="checkbox-group">
+                    <input
+                        type="checkbox"
+                        id="marketingConsent"
+                        required
+                    >
+                    <label for="marketingConsent">
+                        I agree to receive marketing communications and understand my data will be processed according to the privacy policy. I can unsubscribe at any time.
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-submit">View My Quote</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Renoa. Professional snow removal services in Edison Park, Chicago.</p>
+    </footer>
+
+    <script>
+        // Calculator Logic
+        const form = document.getElementById('calculatorForm');
+        const emailForm = document.getElementById('emailForm');
+        const result = document.getElementById('result');
+        const resultPrice = document.getElementById('resultPrice');
+        const resultFrequency = document.getElementById('resultFrequency');
+        const emailModal = document.getElementById('emailModal');
+
+        let calculatedData = {};
+
+        // Base pricing
+        const basePrices = {
+            small: { min: 35, max: 50 },
+            medium: { min: 50, max: 75 },
+            large: { min: 75, max: 120 }
+        };
+
+        // Add-on pricing
+        const addons = {
+            driveway: {
+                none: 0,
+                single: 10,
+                double: 15,
+                triple: 20
+            },
+            sidewalk: {
+                none: 0,
+                short: 10,
+                medium: 15,
+                long: 25
+            }
+        };
+
+        // Service type multipliers and frequency
+        const serviceTypes = {
+            perVisit: { multiplier: 1, frequency: 'per visit', visits: 1 },
+            monthly: { multiplier: 0.85, frequency: 'per month', visits: 8 }, // 15% discount
+            seasonal: { multiplier: 0.75, frequency: 'per season', visits: 20 } // 25% discount (Nov-Mar, ~5 months * 4 visits)
+        };
+
+        function calculatePrice() {
+            const propertySize = document.getElementById('propertySize').value;
+            const driveway = document.getElementById('driveway').value;
+            const sidewalk = document.getElementById('sidewalk').value;
+            const serviceType = document.getElementById('serviceType').value;
+
+            if (!propertySize) {
+                alert('Please select a property size');
+                return null;
+            }
+
+            // Calculate base price (use average of min and max)
+            const basePrice = (basePrices[propertySize].min + basePrices[propertySize].max) / 2;
+
+            // Add add-ons
+            const drivewayPrice = addons.driveway[driveway];
+            const sidewalkPrice = addons.sidewalk[sidewalk];
+
+            // Calculate per-visit price
+            const perVisitPrice = basePrice + drivewayPrice + sidewalkPrice;
+
+            // Apply service type multiplier and calculate total
+            const serviceInfo = serviceTypes[serviceType];
+            const totalPrice = perVisitPrice * serviceInfo.visits * serviceInfo.multiplier;
+
+            return {
+                propertySize,
+                driveway,
+                sidewalk,
+                serviceType,
+                perVisitPrice,
+                totalPrice,
+                frequency: serviceInfo.frequency,
+                basePrice,
+                addons: {
+                    driveway: drivewayPrice,
+                    sidewalk: sidewalkPrice
+                }
+            };
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            calculatedData = calculatePrice();
+
+            if (!calculatedData) {
+                return;
+            }
+
+            // Display result with blurred price
+            result.classList.add('show');
+            resultPrice.textContent = '$' + Math.round(calculatedData.totalPrice);
+            resultPrice.classList.add('blurred');
+            resultFrequency.textContent = calculatedData.frequency;
+
+            // Scroll to result
+            result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Show email modal after 1.5 seconds
+            setTimeout(() => {
+                emailModal.classList.add('show');
+            }, 1500);
+        });
+
+        emailForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('userEmail').value;
+            const consent = document.getElementById('marketingConsent').checked;
+
+            if (!email || !consent) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            // Prepare data for logging
+            const submissionData = {
+                timestamp: new Date().toISOString(),
+                location: 'Edison Park, Chicago',
+                email: email,
+                marketingConsent: consent,
+                calculator: {
+                    propertySize: calculatedData.propertySize,
+                    driveway: calculatedData.driveway,
+                    sidewalk: calculatedData.sidewalk,
+                    serviceType: calculatedData.serviceType,
+                    basePrice: calculatedData.basePrice,
+                    addons: calculatedData.addons,
+                    perVisitPrice: calculatedData.perVisitPrice,
+                    totalPrice: calculatedData.totalPrice,
+                    frequency: calculatedData.frequency
+                }
+            };
+
+            // Log to console
+            console.log('=== SNOW REMOVAL LEAD CAPTURE ===');
+            console.log(JSON.stringify(submissionData, null, 2));
+            console.log('================================');
+
+            // Remove blur from price
+            resultPrice.classList.remove('blurred');
+
+            // Hide modal
+            emailModal.classList.remove('show');
+
+            // Reset email form
+            emailForm.reset();
+        });
+
+        // Close modal when clicking outside
+        emailModal.addEventListener('click', function(e) {
+            if (e.target === emailModal) {
+                emailModal.classList.remove('show');
+            }
+        });
+
+        // Form validation messages
+        const inputs = document.querySelectorAll('input[required], select[required]');
+        inputs.forEach(input => {
+            input.addEventListener('invalid', function(e) {
+                e.preventDefault();
+                if (this.type === 'email') {
+                    this.setCustomValidity('Please enter a valid email address');
+                } else if (this.type === 'checkbox') {
+                    this.setCustomValidity('Please agree to continue');
+                } else {
+                    this.setCustomValidity('Please fill out this field');
+                }
+            });
+
+            input.addEventListener('input', function() {
+                this.setCustomValidity('');
+            });
+        });
+    </script>
+</body>
+</html>
